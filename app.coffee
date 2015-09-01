@@ -1,7 +1,14 @@
+# Awesomebar, with blur:40 of the content?
+# multimedia, PiP
+# pull page down again
+# no tab
+# swip left/right to switch tab
+
 Framer.Device.deviceType = "fullscreen"
 
 HEIGHT = 600
 WIDTH = 600
+NAVBARHEIGHT = 30
 
 ION =
 	"font-family": "ion"
@@ -34,7 +41,7 @@ win.center();
 
 makeNavbar = (p) ->
 	navbar = new Layer
-		height: 24
+		height: NAVBARHEIGHT
 		width: WIDTH
 		backgroundColor: p.bg
 		style: "border-radius": "3px 3px 0 0"
@@ -164,8 +171,3 @@ frame = (p) ->
 	win.addSubLayer(scrollable)
 
 frame(p1)
-
-
-# Awesomebar, with blur:40 of the content?
-# multimedia, PiP
-# pull page down again
