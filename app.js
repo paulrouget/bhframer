@@ -42,11 +42,11 @@ win.addSubLayer(globalControls);
 
 var size = {width: WINDOW_WIDTH, height: WINDOW_HEIGHT};
 
-var v0 = new View(Pages[0], size)
+// var v0 = new View(Pages[0], size)
 var v1 = new View(Pages[1], size)
 var v2 = new View(Pages[2], size)
 var v3 = new View(Pages[3], size)
-var v4 = new View(Pages[4], size)
+// var v4 = new View(Pages[4], size)
 
 function onFullPreview(preview) {
 
@@ -60,7 +60,8 @@ function onFullPreview(preview) {
     });
 
 
-    for (var v of [v0, v1, v3, v4]) {
+    // for (var v of [v0, v1, v3, v4]) {
+    for (var v of [v1, v3]) {
       v.layer.animate({
         curve: "spring-rk4",
         curveOptions: {
@@ -83,7 +84,8 @@ function onFullPreview(preview) {
       time: 0.2
     });
 
-    for (var v of [v0, v1, v3, v4]) {
+    // for (var v of [v0, v1, v3, v4]) {
+    for (var v of [v1, v3]) {
       v.layer.animate({
         properties: {
           x: v.layer._orgX * 2
@@ -95,27 +97,27 @@ function onFullPreview(preview) {
 
 }
 
-v0.unselect();
+// v0.unselect();
 v1.unselect();
 v2.select();
 v3.unselect();
-v4.unselect();
+// v4.unselect();
 
-v0.previewOn();
+// v0.previewOn();
 v1.previewOn();
 v2.previewOff();
 v3.previewOn();
-v4.previewOn();
+// v4.previewOn();
 
-v0.layer._orgX = v0.layer.x = -480;
+// v0.layer._orgX = v0.layer.x = -480;
 v1.layer._orgX = v1.layer.x = -240;
 v2.layer._orgX = v2.layer.x =    0;
 v3.layer._orgX = v3.layer.x =  240;
-v4.layer._orgX = v4.layer.x =  480;
+// v4.layer._orgX = v4.layer.x =  480;
 
 
-win.addSubLayer(v0.layer);
-win.addSubLayer(v4.layer);
+// win.addSubLayer(v0.layer);
+// win.addSubLayer(v4.layer);
 win.addSubLayer(v1.layer);
 win.addSubLayer(v3.layer);
 win.addSubLayer(v2.layer);
