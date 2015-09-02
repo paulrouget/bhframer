@@ -1,15 +1,15 @@
-var page1 = {
-  domain: "qz.com",
-  title: "Quartz",
-  w: 2348,
-  h: 4586,
-  screenshot: "pages/p1.png",
+var wikipedia = {
+  domain: "wikipedia.org",
+  title: "Le Tour De France",
+  w: 1014,
+  h: 31067,
+  screenshot: "pages/p4.png",
   bg: "white",
   fg: "black",
   scrollable: true
 };
 
-var page2 = {
+var instagram = {
   domain: "instagram.com",
   title: "Instagram",
   w: 2246,
@@ -20,7 +20,18 @@ var page2 = {
   scrollable: false
 };
 
-var page3 = {
+var qz = {
+  domain: "qz.com",
+  title: "Quartz",
+  w: 2348,
+  h: 4586,
+  screenshot: "pages/p1.png",
+  bg: "white",
+  fg: "black",
+  scrollable: true
+};
+
+var vimeo = {
   domain: "vimeo.com",
   title: "Staff Picks - Blood Pulls A …",
   w: 2348,
@@ -31,4 +42,15 @@ var page3 = {
   scrollable: true
 };
 
-module.exports = [page1, page2, page3];
+var hackernews = {
+  domain: "news.ycombinator.com",
+  title: "Hacker News",
+  w: 1014,
+  h: 1286,
+  screenshot: "pages/p5.png",
+  bg: "white",
+  fg: "black",
+  scrollable: true
+};
+
+module.exports = [wikipedia, instagram, qz, vimeo, hackernews];
