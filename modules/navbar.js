@@ -1,13 +1,15 @@
 var WindowControls = require('./window-controls');
 
-module.exports = function(page, width, height) {
+exports.Navbar = function(page, width, height) {
+
+  var urlbarHeight = 16;
 
   var navbar = new Layer({
     height: height,
     width: width,
     backgroundColor: page.bg,
     style: {
-      "border-radius": "3px 3px 0 0"
+      "border-radius": "3px 3px 0 0",
     }
   });
 
@@ -17,13 +19,13 @@ module.exports = function(page, width, height) {
   navbar.addSubLayer(ctrls);
 
   var urlbar = new Layer({
-    height: 14,
+    height: urlbarHeight,
     backgroundColor: "#EEE",
     borderRadius: 100,
     width: width / 3,
     style: {
       "font-size": "9px",
-      "line-height": "13.5px",
+      "line-height": 0.9 * urlbarHeight + "px",
       "color": "rgba(0,0,0,0.5)",
       "text-align": "center"
     },
@@ -35,13 +37,13 @@ module.exports = function(page, width, height) {
 
   var reloadButton = new Layer({
     backgroundColor: "transparent",
-    x: width / 3 - 14,
-    height: 14,
-    width: 14,
+    x: width / 3 - urlbarHeight,
+    height: urlbarHeight,
+    width: urlbarHeight,
     style: {
       "font-family": "ion",
-      "font-size": "14px",
-      "line-height": "14px",
+      "font-size": urlbarHeight + "px",
+      "line-height": urlbarHeight + "px",
       "text-align": "center",
       "display": "inline-block",
     },
@@ -56,7 +58,7 @@ module.exports = function(page, width, height) {
     style: {
       "font-family": "ion",
       "font-size": "12px",
-      "line-height": "14px",
+      "line-height": urlbarHeight + "px",
       "text-align": "center",
       "display": "inline-block",
     },
@@ -67,4 +69,56 @@ module.exports = function(page, width, height) {
   urlbar.addSubLayer(backButton);
 
   return navbar;
+}
+
+
+exports.PreviewNavbar = function(page, width, height) {
+
+  var bg = "white";
+  var fg = "black";
+
+  var closeButton = new Layer({
+    backgroundColor: "transparent",
+    height: height,
+    width: height,
+    x: width - height,
+    style: {
+      "font-family": "ion",
+      "font-size": 0.5 * height + "px",
+      "line-height": height + "px",
+      "text-align": "center",
+      "display": "inline-block",
+      "color": fg,
+    },
+    html: "\uf129"
+  });
+
+  var layer = new Layer({
+    height: height,
+    width: width,
+    backgroundColor: bg,
+    style: {
+      "border-radius": "3px 3px 0 0",
+    }
+  });
+
+  var title = new Layer({
+    backgroundColor: 'transparent',
+    height: height,
+    width: width,
+    style: {
+      "font-size": 0.5 * height + "px",
+      "line-height": height + "px",
+      "color": fg,
+      "text-align": "center",
+      "font-weight": "lighter",
+    },
+    html: page.domain + ": " + page.title
+  });
+
+  layer.addSubLayer(title);
+
+  layer.addSubLayer(closeButton);
+
+  return layer;
 }
