@@ -46,31 +46,31 @@
 
 	var Defaults, Framer, _;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
 	Framer = {};
 	
 	Framer._ = _;
 	
-	Framer.Utils = __webpack_require__(2);
+	Framer.Utils = __webpack_require__(4);
 	
-	Framer.Layer = (__webpack_require__(12)).Layer;
+	Framer.Layer = (__webpack_require__(9)).Layer;
 	
-	Framer.BackgroundLayer = (__webpack_require__(31)).BackgroundLayer;
+	Framer.BackgroundLayer = (__webpack_require__(29)).BackgroundLayer;
 	
-	Framer.VideoLayer = (__webpack_require__(32)).VideoLayer;
+	Framer.VideoLayer = (__webpack_require__(30)).VideoLayer;
 	
-	Framer.Events = (__webpack_require__(23)).Events;
+	Framer.Events = (__webpack_require__(21)).Events;
 	
-	Framer.Animation = (__webpack_require__(14)).Animation;
+	Framer.Animation = (__webpack_require__(12)).Animation;
 	
-	Framer.AnimationGroup = (__webpack_require__(33)).AnimationGroup;
+	Framer.AnimationGroup = (__webpack_require__(31)).AnimationGroup;
 	
-	Framer.Screen = (__webpack_require__(6)).Screen;
+	Framer.Screen = (__webpack_require__(5)).Screen;
 	
-	Framer.Canvas = (__webpack_require__(34)).Canvas;
+	Framer.Canvas = (__webpack_require__(32)).Canvas;
 	
-	Framer.print = (__webpack_require__(35)).print;
+	Framer.print = (__webpack_require__(33)).print;
 	
 	Framer.ScrollComponent = (__webpack_require__(36)).ScrollComponent;
 	
@@ -86,27 +86,27 @@
 	  _.extend(window, Framer);
 	}
 	
-	Framer.Context = (__webpack_require__(1)).Context;
+	Framer.Context = (__webpack_require__(34)).Context;
 	
 	Framer.Config = (__webpack_require__(10)).Config;
 	
-	Framer.EventEmitter = (__webpack_require__(8)).EventEmitter;
+	Framer.EventEmitter = (__webpack_require__(7)).EventEmitter;
 	
-	Framer.BaseClass = (__webpack_require__(7)).BaseClass;
+	Framer.BaseClass = (__webpack_require__(6)).BaseClass;
 	
-	Framer.LayerStyle = (__webpack_require__(21)).LayerStyle;
+	Framer.LayerStyle = (__webpack_require__(19)).LayerStyle;
 	
 	Framer.AnimationLoop = (__webpack_require__(40)).AnimationLoop;
 	
-	Framer.LinearAnimator = (__webpack_require__(15)).LinearAnimator;
+	Framer.LinearAnimator = (__webpack_require__(13)).LinearAnimator;
 	
-	Framer.BezierCurveAnimator = (__webpack_require__(17)).BezierCurveAnimator;
+	Framer.BezierCurveAnimator = (__webpack_require__(15)).BezierCurveAnimator;
 	
-	Framer.SpringDHOAnimator = (__webpack_require__(20)).SpringDHOAnimator;
+	Framer.SpringDHOAnimator = (__webpack_require__(18)).SpringDHOAnimator;
 	
-	Framer.SpringRK4Animator = (__webpack_require__(18)).SpringRK4Animator;
+	Framer.SpringRK4Animator = (__webpack_require__(16)).SpringRK4Animator;
 	
-	Framer.LayerDraggable = (__webpack_require__(24)).LayerDraggable;
+	Framer.LayerDraggable = (__webpack_require__(22)).LayerDraggable;
 	
 	Framer.Importer = (__webpack_require__(41)).Importer;
 	
@@ -132,7 +132,7 @@
 	  Framer.Extras.MobileScrollFix.enable();
 	}
 	
-	Defaults = (__webpack_require__(13)).Defaults;
+	Defaults = (__webpack_require__(11)).Defaults;
 	
 	Defaults.setup();
 	
@@ -143,1310 +143,11 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var BaseClass, Config, Counter, EventManager, Utils, _,
-	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-	  hasProp = {}.hasOwnProperty,
-	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-	
-	Utils = __webpack_require__(2);
-	
-	_ = __webpack_require__(3)._;
-	
-	BaseClass = __webpack_require__(7).BaseClass;
-	
-	Config = __webpack_require__(10).Config;
-	
-	EventManager = __webpack_require__(11).EventManager;
-	
-	Counter = 1;
-	
-	exports.Context = (function(superClass) {
-	  extend(Context, superClass);
-	
-	  function Context(options) {
-	    if (options == null) {
-	      options = {};
-	    }
-	    this._appendRootElement = bind(this._appendRootElement, this);
-	    Context.__super__.constructor.apply(this, arguments);
-	    Counter++;
-	    options = _.defaults(options, {
-	      contextName: null,
-	      parentLayer: null,
-	      name: null
-	    });
-	    if (!options.name) {
-	      throw Error("Contexts need a name");
-	    }
-	    this._parentLayer = options.parentLayer;
-	    this._name = options.name;
-	    this.reset();
-	  }
-	
-	  Context.prototype.reset = function() {
-	    var animation, i, len, ref, ref1, ref2, ref3;
-	    if ((ref = this.eventManager) != null) {
-	      ref.reset();
-	    }
-	    this.eventManager = new EventManager;
-	    if (this._rootElement) {
-	      if (this._rootElement.parentNode) {
-	        this._rootElement.parentNode.removeChild(this._rootElement);
-	      } else {
-	        this._rootElement.__cancelAppendChild = true;
-	      }
-	    }
-	    this._createRootElement();
-	    if ((ref1 = this._delayTimers) != null) {
-	      ref1.map(function(timer) {
-	        return window.clearTimeout(timer);
-	      });
-	    }
-	    if ((ref2 = this._delayIntervals) != null) {
-	      ref2.map(function(timer) {
-	        return window.clearInterval(timer);
-	      });
-	    }
-	    if (this._animationList) {
-	      ref3 = this._animationList;
-	      for (i = 0, len = ref3.length; i < len; i++) {
-	        animation = ref3[i];
-	        animation.stop(false);
-	      }
-	    }
-	    this._layerList = [];
-	    this._animationList = [];
-	    this._delayTimers = [];
-	    this._delayIntervals = [];
-	    this._layerIdCounter = 1;
-	    return this.emit("reset", this);
-	  };
-	
-	  Context.prototype.destroy = function() {
-	    this.reset();
-	    if (this._rootElement.parentNode) {
-	      this._rootElement.parentNode.removeChild(this._rootElement);
-	    }
-	    return Utils.domCompleteCancel(this._appendRootElement);
-	  };
-	
-	  Context.prototype.getRootElement = function() {
-	    return this._rootElement;
-	  };
-	
-	  Context.prototype.getLayers = function() {
-	    return _.clone(this._layerList);
-	  };
-	
-	  Context.prototype.addLayer = function(layer) {
-	    if (indexOf.call(this._layerList, layer) >= 0) {
-	      return;
-	    }
-	    this._layerList.push(layer);
-	    return null;
-	  };
-	
-	  Context.prototype.removeLayer = function(layer) {
-	    this._layerList = _.without(this._layerList, layer);
-	    return null;
-	  };
-	
-	  Context.prototype.layerCount = function() {
-	    return this._layerList.length;
-	  };
-	
-	  Context.prototype.nextLayerId = function() {
-	    return this._layerIdCounter++;
-	  };
-	
-	  Context.prototype._createRootElement = function() {
-	    this._rootElement = document.createElement("div");
-	    this._rootElement.id = "FramerContextRoot-" + this._name;
-	    this._rootElement.classList.add("framerContext");
-	    if (this._parentLayer) {
-	      return this._appendRootElement();
-	    } else {
-	      return Utils.domComplete(this._appendRootElement);
-	    }
-	  };
-	
-	  Context.prototype._appendRootElement = function() {
-	    var parentElement, ref;
-	    parentElement = (ref = this._parentLayer) != null ? ref._element : void 0;
-	    if (parentElement == null) {
-	      parentElement = document.body;
-	    }
-	    return parentElement.appendChild(this._rootElement);
-	  };
-	
-	  Context.prototype.run = function(f) {
-	    var previousContext;
-	    previousContext = Framer.CurrentContext;
-	    Framer.CurrentContext = this;
-	    f();
-	    return Framer.CurrentContext = previousContext;
-	  };
-	
-	  Context.define("width", {
-	    get: function() {
-	      if (this._parentLayer) {
-	        return this._parentLayer.width;
-	      }
-	      return window.innerWidth;
-	    }
-	  });
-	
-	  Context.define("height", {
-	    get: function() {
-	      if (this._parentLayer) {
-	        return this._parentLayer.height;
-	      }
-	      return window.innerHeight;
-	    }
-	  });
-	
-	  return Context;
-	
-	})(BaseClass);
+	exports._ = __webpack_require__(2);
 
 
 /***/ },
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Screen, Utils, _, __domComplete, __domReady, _textSizeNode,
-	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
-	  slice = [].slice;
-	
-	_ = __webpack_require__(3)._;
-	
-	Screen = __webpack_require__(6).Screen;
-	
-	Utils = {};
-	
-	Utils.reset = function() {
-	  return Framer.CurrentContext.reset();
-	};
-	
-	Utils.getValue = function(value) {
-	  if (_.isFunction(value)) {
-	    return value();
-	  }
-	  return value;
-	};
-	
-	Utils.getValueForKeyPath = function(obj, key) {
-	  var len, m, ref, ref1, result;
-	  result = obj;
-	  if (ref = !".", indexOf.call(key, ref) >= 0) {
-	    return obj[key];
-	  }
-	  ref1 = key.split(".");
-	  for (m = 0, len = ref1.length; m < len; m++) {
-	    key = ref1[m];
-	    result = result[key];
-	  }
-	  return result;
-	};
-	
-	Utils.setValueForKeyPath = function(obj, path, val) {
-	  var field, fields, i, n, result;
-	  fields = path.split('.');
-	  result = obj;
-	  i = 0;
-	  n = fields.length;
-	  while (i < n && result !== void 0) {
-	    field = fields[i];
-	    if (i === n - 1) {
-	      result[field] = val;
-	    } else {
-	      if (typeof result[field] === 'undefined' || !_.isObject(result[field])) {
-	        result[field] = {};
-	      }
-	      result = result[field];
-	    }
-	    i++;
-	  }
-	};
-	
-	Utils.valueOrDefault = function(value, defaultValue) {
-	  if (value === (void 0) || value === null) {
-	    value = defaultValue;
-	  }
-	  return value;
-	};
-	
-	Utils.arrayNext = function(arr, item) {
-	  return arr[arr.indexOf(item) + 1] || _.first(arr);
-	};
-	
-	Utils.arrayPrev = function(arr, item) {
-	  return arr[arr.indexOf(item) - 1] || _.last(arr);
-	};
-	
-	Utils.sum = function(arr) {
-	  return _.reduce(arr, function(a, b) {
-	    return a + b;
-	  });
-	};
-	
-	Utils.average = function(arr) {
-	  return Utils.sum(arr) / arr.length;
-	};
-	
-	Utils.mean = Utils.average;
-	
-	Utils.median = function(x) {
-	  var sorted;
-	  if (x.length === 0) {
-	    return null;
-	  }
-	  sorted = x.slice().sort(function(a, b) {
-	    return a - b;
-	  });
-	  if (sorted.length % 2 === 1) {
-	    return sorted[(sorted.length - 1) / 2];
-	  } else {
-	    return (sorted[(sorted.length / 2) - 1] + sorted[sorted.length / 2]) / 2;
-	  }
-	};
-	
-	if (window.requestAnimationFrame == null) {
-	  window.requestAnimationFrame = window.webkitRequestAnimationFrame;
-	}
-	
-	if (window.requestAnimationFrame == null) {
-	  window.requestAnimationFrame = function(f) {
-	    return Utils.delay(1 / 60, f);
-	  };
-	}
-	
-	if (window.performance) {
-	  Utils.getTime = function() {
-	    return window.performance.now() / 1000;
-	  };
-	} else {
-	  Utils.getTime = function() {
-	    return Date.now() / 1000;
-	  };
-	}
-	
-	Utils.delay = function(time, f) {
-	  var timer;
-	  timer = setTimeout(f, time * 1000);
-	  Framer.CurrentContext._delayTimers.push(timer);
-	  return timer;
-	};
-	
-	Utils.interval = function(time, f) {
-	  var timer;
-	  timer = setInterval(f, time * 1000);
-	  Framer.CurrentContext._delayIntervals.push(timer);
-	  return timer;
-	};
-	
-	Utils.debounce = function(threshold, fn, immediate) {
-	  var timeout;
-	  if (threshold == null) {
-	    threshold = 0.1;
-	  }
-	  timeout = null;
-	  threshold *= 1000;
-	  return function() {
-	    var args, delayed, obj;
-	    args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-	    obj = this;
-	    delayed = function() {
-	      if (!immediate) {
-	        fn.apply(obj, args);
-	      }
-	      return timeout = null;
-	    };
-	    if (timeout) {
-	      clearTimeout(timeout);
-	    } else if (immediate) {
-	      fn.apply(obj, args);
-	    }
-	    return timeout = setTimeout(delayed, threshold);
-	  };
-	};
-	
-	Utils.throttle = function(delay, fn) {
-	  var timer;
-	  if (delay === 0) {
-	    return fn;
-	  }
-	  delay *= 1000;
-	  timer = false;
-	  return function() {
-	    if (timer) {
-	      return;
-	    }
-	    timer = true;
-	    if (delay !== -1) {
-	      setTimeout((function() {
-	        return timer = false;
-	      }), delay);
-	    }
-	    return fn.apply(null, arguments);
-	  };
-	};
-	
-	Utils.memoize = function(fn) {
-	  return function() {
-	    var args, currentArg, hash, i;
-	    args = Array.prototype.slice.call(arguments);
-	    hash = "";
-	    i = args.length;
-	    currentArg = null;
-	    while (i--) {
-	      currentArg = args[i];
-	      hash += (currentArg === Object(currentArg) ? JSON.stringify(currentArg) : currentArg);
-	      fn.memoize || (fn.memoize = {});
-	    }
-	    if (hash in fn.memoize) {
-	      return fn.memoize[hash];
-	    } else {
-	      return fn.memoize[hash] = fn.apply(this, args);
-	    }
-	  };
-	};
-	
-	Utils.randomColor = function(alpha) {
-	  var c;
-	  if (alpha == null) {
-	    alpha = 1.0;
-	  }
-	  c = function() {
-	    return parseInt(Math.random() * 255);
-	  };
-	  return "rgba(" + (c()) + ", " + (c()) + ", " + (c()) + ", " + alpha + ")";
-	};
-	
-	Utils.randomChoice = function(arr) {
-	  return arr[Math.floor(Math.random() * arr.length)];
-	};
-	
-	Utils.randomNumber = function(a, b) {
-	  if (a == null) {
-	    a = 0;
-	  }
-	  if (b == null) {
-	    b = 1;
-	  }
-	  return Utils.mapRange(Math.random(), 0, 1, a, b);
-	};
-	
-	Utils.defineEnum = function(names, offset, geometric) {
-	  var Enum, i, j, len, m, name;
-	  if (names == null) {
-	    names = [];
-	  }
-	  if (offset == null) {
-	    offset = 0;
-	  }
-	  if (geometric == null) {
-	    geometric = 0;
-	  }
-	  Enum = {};
-	  for (i = m = 0, len = names.length; m < len; i = ++m) {
-	    name = names[i];
-	    j = i;
-	    j = !offset ? j : j + offset;
-	    j = !geometric ? j : Math.pow(geometric, j);
-	    Enum[Enum[name] = j] = name;
-	  }
-	  return Enum;
-	};
-	
-	Utils.labelLayer = function(layer, text, style) {
-	  if (style == null) {
-	    style = {};
-	  }
-	  style = _.extend({
-	    font: "10px/1em Menlo",
-	    lineHeight: layer.height + "px",
-	    textAlign: "center",
-	    color: "#fff"
-	  }, style);
-	  layer.style = style;
-	  return layer.html = text;
-	};
-	
-	Utils.stringify = function(obj) {
-	  try {
-	    if (_.isObject(obj)) {
-	      return JSON.stringify(obj);
-	    }
-	  } catch (_error) {
-	    "";
-	  }
-	  if (obj === null) {
-	    return "null";
-	  }
-	  if (obj === void 0) {
-	    return "undefined";
-	  }
-	  if (obj.toString) {
-	    return obj.toString();
-	  }
-	  return obj;
-	};
-	
-	Utils.inspectObjectType = function(item) {
-	  var className, extract, ref, ref1, ref2;
-	  if ((((ref = item.constructor) != null ? ref.name : void 0) != null) && ((ref1 = item.constructor) != null ? ref1.name : void 0) !== "Object") {
-	    return item.constructor.name;
-	  }
-	  extract = function(str) {
-	    var match, regex;
-	    if (!str) {
-	      return null;
-	    }
-	    regex = /\[object (\w+)\]/;
-	    match = regex.exec(str);
-	    if (match) {
-	      return match[1];
-	    }
-	    return null;
-	  };
-	  className = extract(item.toString());
-	  if (className) {
-	    return className;
-	  }
-	  className = extract((ref2 = item.constructor) != null ? ref2.toString() : void 0);
-	  if (className) {
-	    return className.replace("Constructor", "");
-	  }
-	  return item;
-	};
-	
-	Utils.inspect = function(item, max, l) {
-	  var code, limit, objectInfo, objectType;
-	  if (max == null) {
-	    max = 5;
-	  }
-	  if (l == null) {
-	    l = 0;
-	  }
-	  if (item === null) {
-	    return "null";
-	  }
-	  if (item === void 0) {
-	    return "undefined";
-	  }
-	  if (_.isFunction(item.toInspect)) {
-	    return item.toInspect();
-	  }
-	  if (_.isString(item)) {
-	    return "\"" + item + "\"";
-	  }
-	  if (_.isNumber(item)) {
-	    return "" + item;
-	  }
-	  if (_.isFunction(item)) {
-	    code = item.toString().slice("function ".length).replace(/\n/g, "").replace(/\s+/g, " ");
-	    limit = 50;
-	    if (code.length > limit && l > 0) {
-	      code = (_.trimRight(code.slice(0, +limit + 1 || 9e9))) + "… }";
-	    }
-	    return "<Function " + code + ">";
-	  }
-	  if (_.isArray(item)) {
-	    if (l > max) {
-	      return "[...]";
-	    }
-	    return "[" + _.map(item, function(i) {
-	      return Utils.inspect(i, max, l + 1);
-	    }).join(", ") + "]";
-	  }
-	  if (_.isObject(item)) {
-	    objectType = Utils.inspectObjectType(item);
-	    if (/HTML\w+?Element/.test(objectType)) {
-	      return "<" + objectType + ">";
-	    }
-	    if (l > max) {
-	      objectInfo = "{...}";
-	    } else {
-	      objectInfo = "{" + _.map(item, function(v, k) {
-	        return k + ":" + (Utils.inspect(v, max, l + 1));
-	      }).join(", ") + "}";
-	    }
-	    if (objectType === "Object") {
-	      return objectInfo;
-	    }
-	    return "<" + objectType + " " + objectInfo + ">";
-	  }
-	  return "" + item;
-	};
-	
-	Utils.uuid = function() {
-	  var chars, digit, m, output, r, random;
-	  chars = "0123456789abcdefghijklmnopqrstuvwxyz".split("");
-	  output = new Array(36);
-	  random = 0;
-	  for (digit = m = 1; m <= 32; digit = ++m) {
-	    if (random <= 0x02) {
-	      random = 0x2000000 + (Math.random() * 0x1000000) | 0;
-	    }
-	    r = random & 0xf;
-	    random = random >> 4;
-	    output[digit] = chars[digit === 19 ? (r & 0x3) | 0x8 : r];
-	  }
-	  return output.join("");
-	};
-	
-	Utils.arrayFromArguments = function(args) {
-	  if (_.isArray(args[0])) {
-	    return args[0];
-	  }
-	  return Array.prototype.slice.call(args);
-	};
-	
-	Utils.cycle = function() {
-	  var args, curr;
-	  args = Utils.arrayFromArguments(arguments);
-	  curr = -1;
-	  return function() {
-	    curr++;
-	    if (curr >= args.length) {
-	      curr = 0;
-	    }
-	    return args[curr];
-	  };
-	};
-	
-	Utils.toggle = Utils.cycle;
-	
-	Utils.isWebKit = function() {
-	  return window.WebKitCSSMatrix !== void 0;
-	};
-	
-	Utils.webkitVersion = function() {
-	  var regexp, result, version;
-	  version = -1;
-	  regexp = /AppleWebKit\/([\d.]+)/;
-	  result = regexp.exec(navigator.userAgent);
-	  if (result) {
-	    version = parseFloat(result[1]);
-	  }
-	  return version;
-	};
-	
-	Utils.isChrome = function() {
-	  return /chrome/.test(navigator.userAgent.toLowerCase());
-	};
-	
-	Utils.isSafari = function() {
-	  return /safari/.test(navigator.userAgent.toLowerCase());
-	};
-	
-	Utils.isTouch = function() {
-	  return window.ontouchstart === null;
-	};
-	
-	Utils.isDesktop = function() {
-	  return Utils.deviceType() === "desktop";
-	};
-	
-	Utils.isPhone = function() {
-	  return Utils.deviceType() === "phone";
-	};
-	
-	Utils.isTablet = function() {
-	  return Utils.deviceType() === "tablet";
-	};
-	
-	Utils.isMobile = function() {
-	  return Utils.isPhone() || Utils.isTablet();
-	};
-	
-	Utils.isFileUrl = function(url) {
-	  return _.startsWith(url, "file://");
-	};
-	
-	Utils.isRelativeUrl = function(url) {
-	  return !/^([a-zA-Z]{1,8}:\/\/).*$/.test(url);
-	};
-	
-	Utils.isLocalServerUrl = function(url) {
-	  return url.indexOf("127.0.0.1") !== -1 || url.indexOf("localhost") !== -1;
-	};
-	
-	Utils.isLocalUrl = function(url) {
-	  if (Utils.isFileUrl(url)) {
-	    return true;
-	  }
-	  if (Utils.isLocalServerUrl(url)) {
-	    return true;
-	  }
-	  return false;
-	};
-	
-	Utils.isLocalAssetUrl = function(url, baseUrl) {
-	  if (baseUrl == null) {
-	    baseUrl = window.location.href;
-	  }
-	  if (Utils.isLocalUrl(url)) {
-	    return true;
-	  }
-	  if (Utils.isRelativeUrl(url) && Utils.isLocalUrl(baseUrl)) {
-	    return true;
-	  }
-	  return false;
-	};
-	
-	Utils.isFramerStudio = function() {
-	  return navigator.userAgent.indexOf("FramerStudio") !== -1;
-	};
-	
-	Utils.devicePixelRatio = function() {
-	  return window.devicePixelRatio;
-	};
-	
-	Utils.isJP2Supported = function() {
-	  return Utils.isWebKit() && !Utils.isChrome();
-	};
-	
-	Utils.deviceType = function() {
-	  if (/(tablet)|(iPad)|(Nexus 9)/i.test(navigator.userAgent)) {
-	    return "tablet";
-	  }
-	  if (/(mobi)/i.test(navigator.userAgent)) {
-	    return "phone";
-	  }
-	  return "desktop";
-	};
-	
-	Utils.pathJoin = function() {
-	  return Utils.arrayFromArguments(arguments).join("/");
-	};
-	
-	Utils.round = function(value, decimals) {
-	  var d;
-	  if (decimals == null) {
-	    decimals = 0;
-	  }
-	  d = Math.pow(10, decimals);
-	  return Math.round(value * d) / d;
-	};
-	
-	Utils.clamp = function(value, a, b) {
-	  var max, min;
-	  min = Math.min(a, b);
-	  max = Math.max(a, b);
-	  if (value < min) {
-	    value = min;
-	  }
-	  if (value > max) {
-	    value = max;
-	  }
-	  return value;
-	};
-	
-	Utils.mapRange = function(value, fromLow, fromHigh, toLow, toHigh) {
-	  return toLow + (((value - fromLow) / (fromHigh - fromLow)) * (toHigh - toLow));
-	};
-	
-	Utils.modulate = function(value, rangeA, rangeB, limit) {
-	  var fromHigh, fromLow, result, toHigh, toLow;
-	  if (limit == null) {
-	    limit = false;
-	  }
-	  fromLow = rangeA[0], fromHigh = rangeA[1];
-	  toLow = rangeB[0], toHigh = rangeB[1];
-	  result = toLow + (((value - fromLow) / (fromHigh - fromLow)) * (toHigh - toLow));
-	  if (limit === true) {
-	    if (toLow < toHigh) {
-	      if (result < toLow) {
-	        return toLow;
-	      }
-	      if (result > toHigh) {
-	        return toHigh;
-	      }
-	    } else {
-	      if (result > toLow) {
-	        return toLow;
-	      }
-	      if (result < toHigh) {
-	        return toHigh;
-	      }
-	    }
-	  }
-	  return result;
-	};
-	
-	Utils.parseFunction = function(str) {
-	  var result;
-	  result = {
-	    name: "",
-	    args: []
-	  };
-	  if (_.endsWith(str, ")")) {
-	    result.name = str.split("(")[0];
-	    result.args = str.split("(")[1].split(",").map(function(a) {
-	      return _.trim(_.trimRight(a, ")"));
-	    });
-	  } else {
-	    result.name = str;
-	  }
-	  return result;
-	};
-	
-	__domComplete = [];
-	
-	__domReady = false;
-	
-	if (typeof document !== "undefined" && document !== null) {
-	  document.onreadystatechange = (function(_this) {
-	    return function(event) {
-	      var f, results;
-	      if (document.readyState === "complete") {
-	        __domReady = true;
-	        results = [];
-	        while (__domComplete.length) {
-	          results.push(f = __domComplete.shift()());
-	        }
-	        return results;
-	      }
-	    };
-	  })(this);
-	}
-	
-	Utils.domComplete = function(f) {
-	  if (document.readyState === "complete") {
-	    return f();
-	  } else {
-	    return __domComplete.push(f);
-	  }
-	};
-	
-	Utils.domCompleteCancel = function(f) {
-	  return __domComplete = _.without(__domComplete, f);
-	};
-	
-	Utils.domValidEvent = function(element, eventName) {
-	  return typeof element["on" + (eventName.toLowerCase())] !== "undefined";
-	};
-	
-	Utils.domLoadScript = function(url, callback) {
-	  var head, script;
-	  script = document.createElement("script");
-	  script.type = "text/javascript";
-	  script.src = url;
-	  script.onload = callback;
-	  head = document.getElementsByTagName("head")[0];
-	  head.appendChild(script);
-	  return script;
-	};
-	
-	Utils.domLoadData = function(path, callback) {
-	  var request;
-	  request = new XMLHttpRequest();
-	  request.addEventListener("load", function() {
-	    return callback(null, request.responseText);
-	  }, false);
-	  request.addEventListener("error", function() {
-	    return callback(true, null);
-	  }, false);
-	  request.open("GET", path, true);
-	  return request.send(null);
-	};
-	
-	Utils.domLoadJSON = function(path, callback) {
-	  return Utils.domLoadData(path, function(err, data) {
-	    return callback(err, JSON.parse(data));
-	  });
-	};
-	
-	Utils.domLoadDataSync = function(path) {
-	  var e, handleError, ref, request;
-	  request = new XMLHttpRequest();
-	  request.open("GET", path, false);
-	  try {
-	    request.send(null);
-	  } catch (_error) {
-	    e = _error;
-	    console.debug("XMLHttpRequest.error", e);
-	  }
-	  handleError = function() {
-	    throw Error("Utils.domLoadDataSync: " + path + " -> [" + request.status + " " + request.statusText + "]");
-	  };
-	  request.onerror = handleError;
-	  if ((ref = request.status) !== 200 && ref !== 0) {
-	    handleError();
-	  }
-	  if (!request.responseText) {
-	    handleError();
-	  }
-	  return request.responseText;
-	};
-	
-	Utils.domLoadJSONSync = function(path) {
-	  return JSON.parse(Utils.domLoadDataSync(path));
-	};
-	
-	Utils.domLoadScriptSync = function(path) {
-	  var scriptData;
-	  scriptData = Utils.domLoadDataSync(path);
-	  eval(scriptData);
-	  return scriptData;
-	};
-	
-	Utils.insertCSS = function(css) {
-	  var styleElement;
-	  styleElement = document.createElement("style");
-	  styleElement.type = "text/css";
-	  styleElement.innerHTML = css;
-	  return Utils.domComplete(function() {
-	    return document.body.appendChild(styleElement);
-	  });
-	};
-	
-	Utils.loadImage = function(url, callback, context) {
-	  var element;
-	  element = new Image;
-	  if (context == null) {
-	    context = Framer.CurrentContext;
-	  }
-	  context.eventManager.wrap(element).addEventListener("load", function(event) {
-	    return callback();
-	  });
-	  context.eventManager.wrap(element).addEventListener("error", function(event) {
-	    return callback(true);
-	  });
-	  return element.src = url;
-	};
-	
-	Utils.pointZero = function(args) {
-	  if (args == null) {
-	    args = {};
-	  }
-	  return _.defaults(args, {
-	    x: 0,
-	    y: 0
-	  });
-	};
-	
-	Utils.pointMin = function() {
-	  var point, points;
-	  points = Utils.arrayFromArguments(arguments);
-	  return point = {
-	    x: _.min(points.map(function(size) {
-	      return size.x;
-	    })),
-	    y: _.min(points.map(function(size) {
-	      return size.y;
-	    }))
-	  };
-	};
-	
-	Utils.pointMax = function() {
-	  var point, points;
-	  points = Utils.arrayFromArguments(arguments);
-	  return point = {
-	    x: _.max(points.map(function(size) {
-	      return size.x;
-	    })),
-	    y: _.max(points.map(function(size) {
-	      return size.y;
-	    }))
-	  };
-	};
-	
-	Utils.pointDistance = function(pointA, pointB) {
-	  var distance;
-	  return distance = {
-	    x: Math.abs(pointB.x - pointA.x),
-	    y: Math.abs(pointB.y - pointA.y)
-	  };
-	};
-	
-	Utils.pointInvert = function(point) {
-	  return point = {
-	    x: 0 - point.x,
-	    y: 0 - point.y
-	  };
-	};
-	
-	Utils.pointTotal = function(point) {
-	  return point.x + point.y;
-	};
-	
-	Utils.pointAbs = function(point) {
-	  return point = {
-	    x: Math.abs(point.x),
-	    y: Math.abs(point.y)
-	  };
-	};
-	
-	Utils.pointInFrame = function(point, frame) {
-	  if (point.x < Utils.frameGetMinX(frame) || point.x > Utils.frameGetMaxX(frame)) {
-	    return false;
-	  }
-	  if (point.y < Utils.frameGetMinY(frame) || point.y > Utils.frameGetMaxY(frame)) {
-	    return false;
-	  }
-	  return true;
-	};
-	
-	Utils.sizeZero = function(args) {
-	  if (args == null) {
-	    args = {};
-	  }
-	  return _.defaults(args, {
-	    width: 0,
-	    height: 0
-	  });
-	};
-	
-	Utils.sizeMin = function() {
-	  var size, sizes;
-	  sizes = Utils.arrayFromArguments(arguments);
-	  return size = {
-	    width: _.min(sizes.map(function(size) {
-	      return size.width;
-	    })),
-	    height: _.min(sizes.map(function(size) {
-	      return size.height;
-	    }))
-	  };
-	};
-	
-	Utils.sizeMax = function() {
-	  var size, sizes;
-	  sizes = Utils.arrayFromArguments(arguments);
-	  return size = {
-	    width: _.max(sizes.map(function(size) {
-	      return size.width;
-	    })),
-	    height: _.max(sizes.map(function(size) {
-	      return size.height;
-	    }))
-	  };
-	};
-	
-	Utils.rectZero = function(args) {
-	  if (args == null) {
-	    args = {};
-	  }
-	  return _.defaults(args, {
-	    top: 0,
-	    right: 0,
-	    bottom: 0,
-	    left: 0
-	  });
-	};
-	
-	Utils.parseRect = function(args) {
-	  if (_.isArray(args) && _.isNumber(args[0])) {
-	    if (args.length === 1) {
-	      return Utils.parseRect({
-	        top: args[0]
-	      });
-	    }
-	    if (args.length === 2) {
-	      return Utils.parseRect({
-	        top: args[0],
-	        right: args[1]
-	      });
-	    }
-	    if (args.length === 3) {
-	      return Utils.parseRect({
-	        top: args[0],
-	        right: args[1],
-	        bottom: args[2]
-	      });
-	    }
-	    if (args.length === 4) {
-	      return Utils.parseRect({
-	        top: args[0],
-	        right: args[1],
-	        bottom: args[2],
-	        left: args[3]
-	      });
-	    }
-	  }
-	  if (_.isArray(args) && _.isObject(args[0])) {
-	    return args[0];
-	  }
-	  if (_.isObject(args)) {
-	    return args;
-	  }
-	  return {};
-	};
-	
-	Utils.frameGetMinX = function(frame) {
-	  return frame.x;
-	};
-	
-	Utils.frameSetMinX = function(frame, value) {
-	  return frame.x = value;
-	};
-	
-	Utils.frameGetMidX = function(frame) {
-	  if (frame.width === 0) {
-	    return 0;
-	  } else {
-	    return frame.x + (frame.width / 2.0);
-	  }
-	};
-	
-	Utils.frameSetMidX = function(frame, value) {
-	  return frame.x = frame.width === 0 ? 0 : value - (frame.width / 2.0);
-	};
-	
-	Utils.frameGetMaxX = function(frame) {
-	  if (frame.width === 0) {
-	    return 0;
-	  } else {
-	    return frame.x + frame.width;
-	  }
-	};
-	
-	Utils.frameSetMaxX = function(frame, value) {
-	  return frame.x = frame.width === 0 ? 0 : value - frame.width;
-	};
-	
-	Utils.frameGetMinY = function(frame) {
-	  return frame.y;
-	};
-	
-	Utils.frameSetMinY = function(frame, value) {
-	  return frame.y = value;
-	};
-	
-	Utils.frameGetMidY = function(frame) {
-	  if (frame.height === 0) {
-	    return 0;
-	  } else {
-	    return frame.y + (frame.height / 2.0);
-	  }
-	};
-	
-	Utils.frameSetMidY = function(frame, value) {
-	  return frame.y = frame.height === 0 ? 0 : value - (frame.height / 2.0);
-	};
-	
-	Utils.frameGetMaxY = function(frame) {
-	  if (frame.height === 0) {
-	    return 0;
-	  } else {
-	    return frame.y + frame.height;
-	  }
-	};
-	
-	Utils.frameSetMaxY = function(frame, value) {
-	  return frame.y = frame.height === 0 ? 0 : value - frame.height;
-	};
-	
-	Utils.frameZero = function(args) {
-	  if (args == null) {
-	    args = {};
-	  }
-	  return _.defaults(args, {
-	    top: 0,
-	    right: 0,
-	    bottom: 0,
-	    left: 0
-	  });
-	};
-	
-	Utils.frameSize = function(frame) {
-	  var size;
-	  return size = {
-	    width: frame.width,
-	    height: frame.height
-	  };
-	};
-	
-	Utils.framePoint = function(frame) {
-	  var point;
-	  return point = {
-	    x: frame.x,
-	    y: frame.y
-	  };
-	};
-	
-	Utils.frameMerge = function() {
-	  var frame, frames;
-	  frames = Utils.arrayFromArguments(arguments);
-	  frame = {
-	    x: _.min(frames.map(Utils.frameGetMinX)),
-	    y: _.min(frames.map(Utils.frameGetMinY))
-	  };
-	  frame.width = _.max(frames.map(Utils.frameGetMaxX)) - frame.x;
-	  frame.height = _.max(frames.map(Utils.frameGetMaxY)) - frame.y;
-	  return frame;
-	};
-	
-	Utils.framePointForOrigin = function(frame, originX, originY) {
-	  return frame = {
-	    x: frame.x + (originX * frame.width),
-	    y: frame.y + (originY * frame.height),
-	    width: frame.width,
-	    height: frame.height
-	  };
-	};
-	
-	Utils.frameInset = function(frame, inset) {
-	  return frame = {
-	    x: frame.x + inset.left,
-	    y: frame.y + inset.top,
-	    width: frame.width - inset.left - inset.right,
-	    height: frame.height - inset.top - inset.bottom
-	  };
-	};
-	
-	Utils.frameSortByAbsoluteDistance = function(point, frames, originX, originY) {
-	  var distance;
-	  if (originX == null) {
-	    originX = 0;
-	  }
-	  if (originY == null) {
-	    originY = 0;
-	  }
-	  distance = function(frame) {
-	    var result;
-	    result = Utils.pointDistance(point, Utils.framePointForOrigin(frame, originX, originY));
-	    result = Utils.pointAbs(result);
-	    result = Utils.pointTotal(result);
-	    return result;
-	  };
-	  return frames.sort(function(a, b) {
-	    return distance(a) - distance(b);
-	  });
-	};
-	
-	Utils.pointInPolygon = function(point, vs) {
-	  var i, inside, intersect, j, x, xi, xj, y, yi, yj;
-	  x = point[0];
-	  y = point[1];
-	  inside = false;
-	  i = 0;
-	  j = vs.length - 1;
-	  while (i < vs.length) {
-	    xi = vs[i][0];
-	    yi = vs[i][1];
-	    xj = vs[j][0];
-	    yj = vs[j][1];
-	    intersect = ((yi > y && y !== yj) && yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi;
-	    if (intersect) {
-	      inside = !inside;
-	    }
-	    j = i++;
-	  }
-	  return inside;
-	};
-	
-	Utils.pointAngle = function(p1, p2) {
-	  return Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
-	};
-	
-	Utils.convertPoint = function(input, layerA, layerB, context) {
-	  var layer, len, len1, m, o, point, superLayersA, superLayersB;
-	  if (context == null) {
-	    context = false;
-	  }
-	  point = _.defaults(input, {
-	    x: 0,
-	    y: 0
-	  });
-	  superLayersA = (layerA != null ? layerA.superLayers(context) : void 0) || [];
-	  superLayersB = (layerB != null ? layerB.superLayers(context) : void 0) || [];
-	  if (layerB) {
-	    superLayersB.push(layerB);
-	  }
-	  for (m = 0, len = superLayersA.length; m < len; m++) {
-	    layer = superLayersA[m];
-	    point.x += layer.x;
-	    point.y += layer.y;
-	  }
-	  for (o = 0, len1 = superLayersB.length; o < len1; o++) {
-	    layer = superLayersB[o];
-	    point.x -= layer.x;
-	    point.y -= layer.y;
-	  }
-	  return point;
-	};
-	
-	Utils.globalLayers = function(importedLayers) {
-	  var layer, layerName;
-	  for (layerName in importedLayers) {
-	    layer = importedLayers[layerName];
-	    layerName = layerName.replace(/\s/g, "");
-	    if (window.hasOwnProperty(layerName) && !window.Framer._globalWarningGiven) {
-	      print("Warning: Cannot make layer '" + layerName + "' a global, a variable with that name already exists");
-	    } else {
-	      window[layerName] = layer;
-	    }
-	  }
-	  return window.Framer._globalWarningGiven = true;
-	};
-	
-	_textSizeNode = null;
-	
-	Utils.textSize = function(text, style, constraints) {
-	  var frame, rect, shouldCreateNode;
-	  if (style == null) {
-	    style = {};
-	  }
-	  if (constraints == null) {
-	    constraints = {};
-	  }
-	  shouldCreateNode = !_textSizeNode;
-	  if (shouldCreateNode) {
-	    _textSizeNode = document.createElement("div");
-	    _textSizeNode.id = "_textSizeNode";
-	  }
-	  _textSizeNode.removeAttribute("style");
-	  _textSizeNode.innerHTML = text;
-	  style = _.extend(_.clone(style), {
-	    position: "fixed",
-	    display: "inline",
-	    visibility: "hidden",
-	    top: "-10000px",
-	    left: "-10000px"
-	  });
-	  delete style.width;
-	  delete style.height;
-	  delete style.bottom;
-	  delete style.right;
-	  if (constraints.width) {
-	    style.width = constraints.width + "px";
-	  }
-	  if (constraints.height) {
-	    style.height = constraints.height + "px";
-	  }
-	  _.extend(_textSizeNode.style, style);
-	  if (shouldCreateNode) {
-	    if (!window.document.body) {
-	      document.write(_textSizeNode.outerHTML);
-	      _textSizeNode = document.getElementById("_textSizeNode");
-	    } else {
-	      window.document.body.appendChild(_textSizeNode);
-	    }
-	  }
-	  rect = _textSizeNode.getBoundingClientRect();
-	  return frame = {
-	    width: rect.right - rect.left,
-	    height: rect.bottom - rect.top
-	  };
-	};
-	
-	_.extend(exports, Utils);
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports._ = __webpack_require__(4);
-
-
-/***/ },
-/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/**
@@ -13801,10 +12502,10 @@
 	  }
 	}.call(this));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)(module), (function() { return this; }())))
 
 /***/ },
-/* 5 */
+/* 3 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -13820,14 +12521,1141 @@
 
 
 /***/ },
-/* 6 */
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Screen, Utils, _, __domComplete, __domReady, _textSizeNode,
+	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+	  slice = [].slice;
+	
+	_ = __webpack_require__(1)._;
+	
+	Screen = __webpack_require__(5).Screen;
+	
+	Utils = {};
+	
+	Utils.reset = function() {
+	  return Framer.CurrentContext.reset();
+	};
+	
+	Utils.getValue = function(value) {
+	  if (_.isFunction(value)) {
+	    return value();
+	  }
+	  return value;
+	};
+	
+	Utils.getValueForKeyPath = function(obj, key) {
+	  var len, m, ref, ref1, result;
+	  result = obj;
+	  if (ref = !".", indexOf.call(key, ref) >= 0) {
+	    return obj[key];
+	  }
+	  ref1 = key.split(".");
+	  for (m = 0, len = ref1.length; m < len; m++) {
+	    key = ref1[m];
+	    result = result[key];
+	  }
+	  return result;
+	};
+	
+	Utils.setValueForKeyPath = function(obj, path, val) {
+	  var field, fields, i, n, result;
+	  fields = path.split('.');
+	  result = obj;
+	  i = 0;
+	  n = fields.length;
+	  while (i < n && result !== void 0) {
+	    field = fields[i];
+	    if (i === n - 1) {
+	      result[field] = val;
+	    } else {
+	      if (typeof result[field] === 'undefined' || !_.isObject(result[field])) {
+	        result[field] = {};
+	      }
+	      result = result[field];
+	    }
+	    i++;
+	  }
+	};
+	
+	Utils.valueOrDefault = function(value, defaultValue) {
+	  if (value === (void 0) || value === null) {
+	    value = defaultValue;
+	  }
+	  return value;
+	};
+	
+	Utils.arrayNext = function(arr, item) {
+	  return arr[arr.indexOf(item) + 1] || _.first(arr);
+	};
+	
+	Utils.arrayPrev = function(arr, item) {
+	  return arr[arr.indexOf(item) - 1] || _.last(arr);
+	};
+	
+	Utils.sum = function(arr) {
+	  return _.reduce(arr, function(a, b) {
+	    return a + b;
+	  });
+	};
+	
+	Utils.average = function(arr) {
+	  return Utils.sum(arr) / arr.length;
+	};
+	
+	Utils.mean = Utils.average;
+	
+	Utils.median = function(x) {
+	  var sorted;
+	  if (x.length === 0) {
+	    return null;
+	  }
+	  sorted = x.slice().sort(function(a, b) {
+	    return a - b;
+	  });
+	  if (sorted.length % 2 === 1) {
+	    return sorted[(sorted.length - 1) / 2];
+	  } else {
+	    return (sorted[(sorted.length / 2) - 1] + sorted[sorted.length / 2]) / 2;
+	  }
+	};
+	
+	if (window.requestAnimationFrame == null) {
+	  window.requestAnimationFrame = window.webkitRequestAnimationFrame;
+	}
+	
+	if (window.requestAnimationFrame == null) {
+	  window.requestAnimationFrame = function(f) {
+	    return Utils.delay(1 / 60, f);
+	  };
+	}
+	
+	if (window.performance) {
+	  Utils.getTime = function() {
+	    return window.performance.now() / 1000;
+	  };
+	} else {
+	  Utils.getTime = function() {
+	    return Date.now() / 1000;
+	  };
+	}
+	
+	Utils.delay = function(time, f) {
+	  var timer;
+	  timer = setTimeout(f, time * 1000);
+	  Framer.CurrentContext._delayTimers.push(timer);
+	  return timer;
+	};
+	
+	Utils.interval = function(time, f) {
+	  var timer;
+	  timer = setInterval(f, time * 1000);
+	  Framer.CurrentContext._delayIntervals.push(timer);
+	  return timer;
+	};
+	
+	Utils.debounce = function(threshold, fn, immediate) {
+	  var timeout;
+	  if (threshold == null) {
+	    threshold = 0.1;
+	  }
+	  timeout = null;
+	  threshold *= 1000;
+	  return function() {
+	    var args, delayed, obj;
+	    args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+	    obj = this;
+	    delayed = function() {
+	      if (!immediate) {
+	        fn.apply(obj, args);
+	      }
+	      return timeout = null;
+	    };
+	    if (timeout) {
+	      clearTimeout(timeout);
+	    } else if (immediate) {
+	      fn.apply(obj, args);
+	    }
+	    return timeout = setTimeout(delayed, threshold);
+	  };
+	};
+	
+	Utils.throttle = function(delay, fn) {
+	  var timer;
+	  if (delay === 0) {
+	    return fn;
+	  }
+	  delay *= 1000;
+	  timer = false;
+	  return function() {
+	    if (timer) {
+	      return;
+	    }
+	    timer = true;
+	    if (delay !== -1) {
+	      setTimeout((function() {
+	        return timer = false;
+	      }), delay);
+	    }
+	    return fn.apply(null, arguments);
+	  };
+	};
+	
+	Utils.memoize = function(fn) {
+	  return function() {
+	    var args, currentArg, hash, i;
+	    args = Array.prototype.slice.call(arguments);
+	    hash = "";
+	    i = args.length;
+	    currentArg = null;
+	    while (i--) {
+	      currentArg = args[i];
+	      hash += (currentArg === Object(currentArg) ? JSON.stringify(currentArg) : currentArg);
+	      fn.memoize || (fn.memoize = {});
+	    }
+	    if (hash in fn.memoize) {
+	      return fn.memoize[hash];
+	    } else {
+	      return fn.memoize[hash] = fn.apply(this, args);
+	    }
+	  };
+	};
+	
+	Utils.randomColor = function(alpha) {
+	  var c;
+	  if (alpha == null) {
+	    alpha = 1.0;
+	  }
+	  c = function() {
+	    return parseInt(Math.random() * 255);
+	  };
+	  return "rgba(" + (c()) + ", " + (c()) + ", " + (c()) + ", " + alpha + ")";
+	};
+	
+	Utils.randomChoice = function(arr) {
+	  return arr[Math.floor(Math.random() * arr.length)];
+	};
+	
+	Utils.randomNumber = function(a, b) {
+	  if (a == null) {
+	    a = 0;
+	  }
+	  if (b == null) {
+	    b = 1;
+	  }
+	  return Utils.mapRange(Math.random(), 0, 1, a, b);
+	};
+	
+	Utils.defineEnum = function(names, offset, geometric) {
+	  var Enum, i, j, len, m, name;
+	  if (names == null) {
+	    names = [];
+	  }
+	  if (offset == null) {
+	    offset = 0;
+	  }
+	  if (geometric == null) {
+	    geometric = 0;
+	  }
+	  Enum = {};
+	  for (i = m = 0, len = names.length; m < len; i = ++m) {
+	    name = names[i];
+	    j = i;
+	    j = !offset ? j : j + offset;
+	    j = !geometric ? j : Math.pow(geometric, j);
+	    Enum[Enum[name] = j] = name;
+	  }
+	  return Enum;
+	};
+	
+	Utils.labelLayer = function(layer, text, style) {
+	  if (style == null) {
+	    style = {};
+	  }
+	  style = _.extend({
+	    font: "10px/1em Menlo",
+	    lineHeight: layer.height + "px",
+	    textAlign: "center",
+	    color: "#fff"
+	  }, style);
+	  layer.style = style;
+	  return layer.html = text;
+	};
+	
+	Utils.stringify = function(obj) {
+	  try {
+	    if (_.isObject(obj)) {
+	      return JSON.stringify(obj);
+	    }
+	  } catch (_error) {
+	    "";
+	  }
+	  if (obj === null) {
+	    return "null";
+	  }
+	  if (obj === void 0) {
+	    return "undefined";
+	  }
+	  if (obj.toString) {
+	    return obj.toString();
+	  }
+	  return obj;
+	};
+	
+	Utils.inspectObjectType = function(item) {
+	  var className, extract, ref, ref1, ref2;
+	  if ((((ref = item.constructor) != null ? ref.name : void 0) != null) && ((ref1 = item.constructor) != null ? ref1.name : void 0) !== "Object") {
+	    return item.constructor.name;
+	  }
+	  extract = function(str) {
+	    var match, regex;
+	    if (!str) {
+	      return null;
+	    }
+	    regex = /\[object (\w+)\]/;
+	    match = regex.exec(str);
+	    if (match) {
+	      return match[1];
+	    }
+	    return null;
+	  };
+	  className = extract(item.toString());
+	  if (className) {
+	    return className;
+	  }
+	  className = extract((ref2 = item.constructor) != null ? ref2.toString() : void 0);
+	  if (className) {
+	    return className.replace("Constructor", "");
+	  }
+	  return item;
+	};
+	
+	Utils.inspect = function(item, max, l) {
+	  var code, limit, objectInfo, objectType;
+	  if (max == null) {
+	    max = 5;
+	  }
+	  if (l == null) {
+	    l = 0;
+	  }
+	  if (item === null) {
+	    return "null";
+	  }
+	  if (item === void 0) {
+	    return "undefined";
+	  }
+	  if (_.isFunction(item.toInspect)) {
+	    return item.toInspect();
+	  }
+	  if (_.isString(item)) {
+	    return "\"" + item + "\"";
+	  }
+	  if (_.isNumber(item)) {
+	    return "" + item;
+	  }
+	  if (_.isFunction(item)) {
+	    code = item.toString().slice("function ".length).replace(/\n/g, "").replace(/\s+/g, " ");
+	    limit = 50;
+	    if (code.length > limit && l > 0) {
+	      code = (_.trimRight(code.slice(0, +limit + 1 || 9e9))) + "… }";
+	    }
+	    return "<Function " + code + ">";
+	  }
+	  if (_.isArray(item)) {
+	    if (l > max) {
+	      return "[...]";
+	    }
+	    return "[" + _.map(item, function(i) {
+	      return Utils.inspect(i, max, l + 1);
+	    }).join(", ") + "]";
+	  }
+	  if (_.isObject(item)) {
+	    objectType = Utils.inspectObjectType(item);
+	    if (/HTML\w+?Element/.test(objectType)) {
+	      return "<" + objectType + ">";
+	    }
+	    if (l > max) {
+	      objectInfo = "{...}";
+	    } else {
+	      objectInfo = "{" + _.map(item, function(v, k) {
+	        return k + ":" + (Utils.inspect(v, max, l + 1));
+	      }).join(", ") + "}";
+	    }
+	    if (objectType === "Object") {
+	      return objectInfo;
+	    }
+	    return "<" + objectType + " " + objectInfo + ">";
+	  }
+	  return "" + item;
+	};
+	
+	Utils.uuid = function() {
+	  var chars, digit, m, output, r, random;
+	  chars = "0123456789abcdefghijklmnopqrstuvwxyz".split("");
+	  output = new Array(36);
+	  random = 0;
+	  for (digit = m = 1; m <= 32; digit = ++m) {
+	    if (random <= 0x02) {
+	      random = 0x2000000 + (Math.random() * 0x1000000) | 0;
+	    }
+	    r = random & 0xf;
+	    random = random >> 4;
+	    output[digit] = chars[digit === 19 ? (r & 0x3) | 0x8 : r];
+	  }
+	  return output.join("");
+	};
+	
+	Utils.arrayFromArguments = function(args) {
+	  if (_.isArray(args[0])) {
+	    return args[0];
+	  }
+	  return Array.prototype.slice.call(args);
+	};
+	
+	Utils.cycle = function() {
+	  var args, curr;
+	  args = Utils.arrayFromArguments(arguments);
+	  curr = -1;
+	  return function() {
+	    curr++;
+	    if (curr >= args.length) {
+	      curr = 0;
+	    }
+	    return args[curr];
+	  };
+	};
+	
+	Utils.toggle = Utils.cycle;
+	
+	Utils.isWebKit = function() {
+	  return window.WebKitCSSMatrix !== void 0;
+	};
+	
+	Utils.webkitVersion = function() {
+	  var regexp, result, version;
+	  version = -1;
+	  regexp = /AppleWebKit\/([\d.]+)/;
+	  result = regexp.exec(navigator.userAgent);
+	  if (result) {
+	    version = parseFloat(result[1]);
+	  }
+	  return version;
+	};
+	
+	Utils.isChrome = function() {
+	  return /chrome/.test(navigator.userAgent.toLowerCase());
+	};
+	
+	Utils.isSafari = function() {
+	  return /safari/.test(navigator.userAgent.toLowerCase());
+	};
+	
+	Utils.isTouch = function() {
+	  return window.ontouchstart === null;
+	};
+	
+	Utils.isDesktop = function() {
+	  return Utils.deviceType() === "desktop";
+	};
+	
+	Utils.isPhone = function() {
+	  return Utils.deviceType() === "phone";
+	};
+	
+	Utils.isTablet = function() {
+	  return Utils.deviceType() === "tablet";
+	};
+	
+	Utils.isMobile = function() {
+	  return Utils.isPhone() || Utils.isTablet();
+	};
+	
+	Utils.isFileUrl = function(url) {
+	  return _.startsWith(url, "file://");
+	};
+	
+	Utils.isRelativeUrl = function(url) {
+	  return !/^([a-zA-Z]{1,8}:\/\/).*$/.test(url);
+	};
+	
+	Utils.isLocalServerUrl = function(url) {
+	  return url.indexOf("127.0.0.1") !== -1 || url.indexOf("localhost") !== -1;
+	};
+	
+	Utils.isLocalUrl = function(url) {
+	  if (Utils.isFileUrl(url)) {
+	    return true;
+	  }
+	  if (Utils.isLocalServerUrl(url)) {
+	    return true;
+	  }
+	  return false;
+	};
+	
+	Utils.isLocalAssetUrl = function(url, baseUrl) {
+	  if (baseUrl == null) {
+	    baseUrl = window.location.href;
+	  }
+	  if (Utils.isLocalUrl(url)) {
+	    return true;
+	  }
+	  if (Utils.isRelativeUrl(url) && Utils.isLocalUrl(baseUrl)) {
+	    return true;
+	  }
+	  return false;
+	};
+	
+	Utils.isFramerStudio = function() {
+	  return navigator.userAgent.indexOf("FramerStudio") !== -1;
+	};
+	
+	Utils.devicePixelRatio = function() {
+	  return window.devicePixelRatio;
+	};
+	
+	Utils.isJP2Supported = function() {
+	  return Utils.isWebKit() && !Utils.isChrome();
+	};
+	
+	Utils.deviceType = function() {
+	  if (/(tablet)|(iPad)|(Nexus 9)/i.test(navigator.userAgent)) {
+	    return "tablet";
+	  }
+	  if (/(mobi)/i.test(navigator.userAgent)) {
+	    return "phone";
+	  }
+	  return "desktop";
+	};
+	
+	Utils.pathJoin = function() {
+	  return Utils.arrayFromArguments(arguments).join("/");
+	};
+	
+	Utils.round = function(value, decimals) {
+	  var d;
+	  if (decimals == null) {
+	    decimals = 0;
+	  }
+	  d = Math.pow(10, decimals);
+	  return Math.round(value * d) / d;
+	};
+	
+	Utils.clamp = function(value, a, b) {
+	  var max, min;
+	  min = Math.min(a, b);
+	  max = Math.max(a, b);
+	  if (value < min) {
+	    value = min;
+	  }
+	  if (value > max) {
+	    value = max;
+	  }
+	  return value;
+	};
+	
+	Utils.mapRange = function(value, fromLow, fromHigh, toLow, toHigh) {
+	  return toLow + (((value - fromLow) / (fromHigh - fromLow)) * (toHigh - toLow));
+	};
+	
+	Utils.modulate = function(value, rangeA, rangeB, limit) {
+	  var fromHigh, fromLow, result, toHigh, toLow;
+	  if (limit == null) {
+	    limit = false;
+	  }
+	  fromLow = rangeA[0], fromHigh = rangeA[1];
+	  toLow = rangeB[0], toHigh = rangeB[1];
+	  result = toLow + (((value - fromLow) / (fromHigh - fromLow)) * (toHigh - toLow));
+	  if (limit === true) {
+	    if (toLow < toHigh) {
+	      if (result < toLow) {
+	        return toLow;
+	      }
+	      if (result > toHigh) {
+	        return toHigh;
+	      }
+	    } else {
+	      if (result > toLow) {
+	        return toLow;
+	      }
+	      if (result < toHigh) {
+	        return toHigh;
+	      }
+	    }
+	  }
+	  return result;
+	};
+	
+	Utils.parseFunction = function(str) {
+	  var result;
+	  result = {
+	    name: "",
+	    args: []
+	  };
+	  if (_.endsWith(str, ")")) {
+	    result.name = str.split("(")[0];
+	    result.args = str.split("(")[1].split(",").map(function(a) {
+	      return _.trim(_.trimRight(a, ")"));
+	    });
+	  } else {
+	    result.name = str;
+	  }
+	  return result;
+	};
+	
+	__domComplete = [];
+	
+	__domReady = false;
+	
+	if (typeof document !== "undefined" && document !== null) {
+	  document.onreadystatechange = (function(_this) {
+	    return function(event) {
+	      var f, results;
+	      if (document.readyState === "complete") {
+	        __domReady = true;
+	        results = [];
+	        while (__domComplete.length) {
+	          results.push(f = __domComplete.shift()());
+	        }
+	        return results;
+	      }
+	    };
+	  })(this);
+	}
+	
+	Utils.domComplete = function(f) {
+	  if (document.readyState === "complete") {
+	    return f();
+	  } else {
+	    return __domComplete.push(f);
+	  }
+	};
+	
+	Utils.domCompleteCancel = function(f) {
+	  return __domComplete = _.without(__domComplete, f);
+	};
+	
+	Utils.domValidEvent = function(element, eventName) {
+	  return typeof element["on" + (eventName.toLowerCase())] !== "undefined";
+	};
+	
+	Utils.domLoadScript = function(url, callback) {
+	  var head, script;
+	  script = document.createElement("script");
+	  script.type = "text/javascript";
+	  script.src = url;
+	  script.onload = callback;
+	  head = document.getElementsByTagName("head")[0];
+	  head.appendChild(script);
+	  return script;
+	};
+	
+	Utils.domLoadData = function(path, callback) {
+	  var request;
+	  request = new XMLHttpRequest();
+	  request.addEventListener("load", function() {
+	    return callback(null, request.responseText);
+	  }, false);
+	  request.addEventListener("error", function() {
+	    return callback(true, null);
+	  }, false);
+	  request.open("GET", path, true);
+	  return request.send(null);
+	};
+	
+	Utils.domLoadJSON = function(path, callback) {
+	  return Utils.domLoadData(path, function(err, data) {
+	    return callback(err, JSON.parse(data));
+	  });
+	};
+	
+	Utils.domLoadDataSync = function(path) {
+	  var e, handleError, ref, request;
+	  request = new XMLHttpRequest();
+	  request.open("GET", path, false);
+	  try {
+	    request.send(null);
+	  } catch (_error) {
+	    e = _error;
+	    console.debug("XMLHttpRequest.error", e);
+	  }
+	  handleError = function() {
+	    throw Error("Utils.domLoadDataSync: " + path + " -> [" + request.status + " " + request.statusText + "]");
+	  };
+	  request.onerror = handleError;
+	  if ((ref = request.status) !== 200 && ref !== 0) {
+	    handleError();
+	  }
+	  if (!request.responseText) {
+	    handleError();
+	  }
+	  return request.responseText;
+	};
+	
+	Utils.domLoadJSONSync = function(path) {
+	  return JSON.parse(Utils.domLoadDataSync(path));
+	};
+	
+	Utils.domLoadScriptSync = function(path) {
+	  var scriptData;
+	  scriptData = Utils.domLoadDataSync(path);
+	  eval(scriptData);
+	  return scriptData;
+	};
+	
+	Utils.insertCSS = function(css) {
+	  var styleElement;
+	  styleElement = document.createElement("style");
+	  styleElement.type = "text/css";
+	  styleElement.innerHTML = css;
+	  return Utils.domComplete(function() {
+	    return document.body.appendChild(styleElement);
+	  });
+	};
+	
+	Utils.loadImage = function(url, callback, context) {
+	  var element;
+	  element = new Image;
+	  if (context == null) {
+	    context = Framer.CurrentContext;
+	  }
+	  context.eventManager.wrap(element).addEventListener("load", function(event) {
+	    return callback();
+	  });
+	  context.eventManager.wrap(element).addEventListener("error", function(event) {
+	    return callback(true);
+	  });
+	  return element.src = url;
+	};
+	
+	Utils.pointZero = function(args) {
+	  if (args == null) {
+	    args = {};
+	  }
+	  return _.defaults(args, {
+	    x: 0,
+	    y: 0
+	  });
+	};
+	
+	Utils.pointMin = function() {
+	  var point, points;
+	  points = Utils.arrayFromArguments(arguments);
+	  return point = {
+	    x: _.min(points.map(function(size) {
+	      return size.x;
+	    })),
+	    y: _.min(points.map(function(size) {
+	      return size.y;
+	    }))
+	  };
+	};
+	
+	Utils.pointMax = function() {
+	  var point, points;
+	  points = Utils.arrayFromArguments(arguments);
+	  return point = {
+	    x: _.max(points.map(function(size) {
+	      return size.x;
+	    })),
+	    y: _.max(points.map(function(size) {
+	      return size.y;
+	    }))
+	  };
+	};
+	
+	Utils.pointDistance = function(pointA, pointB) {
+	  var distance;
+	  return distance = {
+	    x: Math.abs(pointB.x - pointA.x),
+	    y: Math.abs(pointB.y - pointA.y)
+	  };
+	};
+	
+	Utils.pointInvert = function(point) {
+	  return point = {
+	    x: 0 - point.x,
+	    y: 0 - point.y
+	  };
+	};
+	
+	Utils.pointTotal = function(point) {
+	  return point.x + point.y;
+	};
+	
+	Utils.pointAbs = function(point) {
+	  return point = {
+	    x: Math.abs(point.x),
+	    y: Math.abs(point.y)
+	  };
+	};
+	
+	Utils.pointInFrame = function(point, frame) {
+	  if (point.x < Utils.frameGetMinX(frame) || point.x > Utils.frameGetMaxX(frame)) {
+	    return false;
+	  }
+	  if (point.y < Utils.frameGetMinY(frame) || point.y > Utils.frameGetMaxY(frame)) {
+	    return false;
+	  }
+	  return true;
+	};
+	
+	Utils.sizeZero = function(args) {
+	  if (args == null) {
+	    args = {};
+	  }
+	  return _.defaults(args, {
+	    width: 0,
+	    height: 0
+	  });
+	};
+	
+	Utils.sizeMin = function() {
+	  var size, sizes;
+	  sizes = Utils.arrayFromArguments(arguments);
+	  return size = {
+	    width: _.min(sizes.map(function(size) {
+	      return size.width;
+	    })),
+	    height: _.min(sizes.map(function(size) {
+	      return size.height;
+	    }))
+	  };
+	};
+	
+	Utils.sizeMax = function() {
+	  var size, sizes;
+	  sizes = Utils.arrayFromArguments(arguments);
+	  return size = {
+	    width: _.max(sizes.map(function(size) {
+	      return size.width;
+	    })),
+	    height: _.max(sizes.map(function(size) {
+	      return size.height;
+	    }))
+	  };
+	};
+	
+	Utils.rectZero = function(args) {
+	  if (args == null) {
+	    args = {};
+	  }
+	  return _.defaults(args, {
+	    top: 0,
+	    right: 0,
+	    bottom: 0,
+	    left: 0
+	  });
+	};
+	
+	Utils.parseRect = function(args) {
+	  if (_.isArray(args) && _.isNumber(args[0])) {
+	    if (args.length === 1) {
+	      return Utils.parseRect({
+	        top: args[0]
+	      });
+	    }
+	    if (args.length === 2) {
+	      return Utils.parseRect({
+	        top: args[0],
+	        right: args[1]
+	      });
+	    }
+	    if (args.length === 3) {
+	      return Utils.parseRect({
+	        top: args[0],
+	        right: args[1],
+	        bottom: args[2]
+	      });
+	    }
+	    if (args.length === 4) {
+	      return Utils.parseRect({
+	        top: args[0],
+	        right: args[1],
+	        bottom: args[2],
+	        left: args[3]
+	      });
+	    }
+	  }
+	  if (_.isArray(args) && _.isObject(args[0])) {
+	    return args[0];
+	  }
+	  if (_.isObject(args)) {
+	    return args;
+	  }
+	  return {};
+	};
+	
+	Utils.frameGetMinX = function(frame) {
+	  return frame.x;
+	};
+	
+	Utils.frameSetMinX = function(frame, value) {
+	  return frame.x = value;
+	};
+	
+	Utils.frameGetMidX = function(frame) {
+	  if (frame.width === 0) {
+	    return 0;
+	  } else {
+	    return frame.x + (frame.width / 2.0);
+	  }
+	};
+	
+	Utils.frameSetMidX = function(frame, value) {
+	  return frame.x = frame.width === 0 ? 0 : value - (frame.width / 2.0);
+	};
+	
+	Utils.frameGetMaxX = function(frame) {
+	  if (frame.width === 0) {
+	    return 0;
+	  } else {
+	    return frame.x + frame.width;
+	  }
+	};
+	
+	Utils.frameSetMaxX = function(frame, value) {
+	  return frame.x = frame.width === 0 ? 0 : value - frame.width;
+	};
+	
+	Utils.frameGetMinY = function(frame) {
+	  return frame.y;
+	};
+	
+	Utils.frameSetMinY = function(frame, value) {
+	  return frame.y = value;
+	};
+	
+	Utils.frameGetMidY = function(frame) {
+	  if (frame.height === 0) {
+	    return 0;
+	  } else {
+	    return frame.y + (frame.height / 2.0);
+	  }
+	};
+	
+	Utils.frameSetMidY = function(frame, value) {
+	  return frame.y = frame.height === 0 ? 0 : value - (frame.height / 2.0);
+	};
+	
+	Utils.frameGetMaxY = function(frame) {
+	  if (frame.height === 0) {
+	    return 0;
+	  } else {
+	    return frame.y + frame.height;
+	  }
+	};
+	
+	Utils.frameSetMaxY = function(frame, value) {
+	  return frame.y = frame.height === 0 ? 0 : value - frame.height;
+	};
+	
+	Utils.frameZero = function(args) {
+	  if (args == null) {
+	    args = {};
+	  }
+	  return _.defaults(args, {
+	    top: 0,
+	    right: 0,
+	    bottom: 0,
+	    left: 0
+	  });
+	};
+	
+	Utils.frameSize = function(frame) {
+	  var size;
+	  return size = {
+	    width: frame.width,
+	    height: frame.height
+	  };
+	};
+	
+	Utils.framePoint = function(frame) {
+	  var point;
+	  return point = {
+	    x: frame.x,
+	    y: frame.y
+	  };
+	};
+	
+	Utils.frameMerge = function() {
+	  var frame, frames;
+	  frames = Utils.arrayFromArguments(arguments);
+	  frame = {
+	    x: _.min(frames.map(Utils.frameGetMinX)),
+	    y: _.min(frames.map(Utils.frameGetMinY))
+	  };
+	  frame.width = _.max(frames.map(Utils.frameGetMaxX)) - frame.x;
+	  frame.height = _.max(frames.map(Utils.frameGetMaxY)) - frame.y;
+	  return frame;
+	};
+	
+	Utils.framePointForOrigin = function(frame, originX, originY) {
+	  return frame = {
+	    x: frame.x + (originX * frame.width),
+	    y: frame.y + (originY * frame.height),
+	    width: frame.width,
+	    height: frame.height
+	  };
+	};
+	
+	Utils.frameInset = function(frame, inset) {
+	  return frame = {
+	    x: frame.x + inset.left,
+	    y: frame.y + inset.top,
+	    width: frame.width - inset.left - inset.right,
+	    height: frame.height - inset.top - inset.bottom
+	  };
+	};
+	
+	Utils.frameSortByAbsoluteDistance = function(point, frames, originX, originY) {
+	  var distance;
+	  if (originX == null) {
+	    originX = 0;
+	  }
+	  if (originY == null) {
+	    originY = 0;
+	  }
+	  distance = function(frame) {
+	    var result;
+	    result = Utils.pointDistance(point, Utils.framePointForOrigin(frame, originX, originY));
+	    result = Utils.pointAbs(result);
+	    result = Utils.pointTotal(result);
+	    return result;
+	  };
+	  return frames.sort(function(a, b) {
+	    return distance(a) - distance(b);
+	  });
+	};
+	
+	Utils.pointInPolygon = function(point, vs) {
+	  var i, inside, intersect, j, x, xi, xj, y, yi, yj;
+	  x = point[0];
+	  y = point[1];
+	  inside = false;
+	  i = 0;
+	  j = vs.length - 1;
+	  while (i < vs.length) {
+	    xi = vs[i][0];
+	    yi = vs[i][1];
+	    xj = vs[j][0];
+	    yj = vs[j][1];
+	    intersect = ((yi > y && y !== yj) && yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi;
+	    if (intersect) {
+	      inside = !inside;
+	    }
+	    j = i++;
+	  }
+	  return inside;
+	};
+	
+	Utils.pointAngle = function(p1, p2) {
+	  return Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+	};
+	
+	Utils.convertPoint = function(input, layerA, layerB, context) {
+	  var layer, len, len1, m, o, point, superLayersA, superLayersB;
+	  if (context == null) {
+	    context = false;
+	  }
+	  point = _.defaults(input, {
+	    x: 0,
+	    y: 0
+	  });
+	  superLayersA = (layerA != null ? layerA.superLayers(context) : void 0) || [];
+	  superLayersB = (layerB != null ? layerB.superLayers(context) : void 0) || [];
+	  if (layerB) {
+	    superLayersB.push(layerB);
+	  }
+	  for (m = 0, len = superLayersA.length; m < len; m++) {
+	    layer = superLayersA[m];
+	    point.x += layer.x;
+	    point.y += layer.y;
+	  }
+	  for (o = 0, len1 = superLayersB.length; o < len1; o++) {
+	    layer = superLayersB[o];
+	    point.x -= layer.x;
+	    point.y -= layer.y;
+	  }
+	  return point;
+	};
+	
+	Utils.globalLayers = function(importedLayers) {
+	  var layer, layerName;
+	  for (layerName in importedLayers) {
+	    layer = importedLayers[layerName];
+	    layerName = layerName.replace(/\s/g, "");
+	    if (window.hasOwnProperty(layerName) && !window.Framer._globalWarningGiven) {
+	      print("Warning: Cannot make layer '" + layerName + "' a global, a variable with that name already exists");
+	    } else {
+	      window[layerName] = layer;
+	    }
+	  }
+	  return window.Framer._globalWarningGiven = true;
+	};
+	
+	_textSizeNode = null;
+	
+	Utils.textSize = function(text, style, constraints) {
+	  var frame, rect, shouldCreateNode;
+	  if (style == null) {
+	    style = {};
+	  }
+	  if (constraints == null) {
+	    constraints = {};
+	  }
+	  shouldCreateNode = !_textSizeNode;
+	  if (shouldCreateNode) {
+	    _textSizeNode = document.createElement("div");
+	    _textSizeNode.id = "_textSizeNode";
+	  }
+	  _textSizeNode.removeAttribute("style");
+	  _textSizeNode.innerHTML = text;
+	  style = _.extend(_.clone(style), {
+	    position: "fixed",
+	    display: "inline",
+	    visibility: "hidden",
+	    top: "-10000px",
+	    left: "-10000px"
+	  });
+	  delete style.width;
+	  delete style.height;
+	  delete style.bottom;
+	  delete style.right;
+	  if (constraints.width) {
+	    style.width = constraints.width + "px";
+	  }
+	  if (constraints.height) {
+	    style.height = constraints.height + "px";
+	  }
+	  _.extend(_textSizeNode.style, style);
+	  if (shouldCreateNode) {
+	    if (!window.document.body) {
+	      document.write(_textSizeNode.outerHTML);
+	      _textSizeNode = document.getElementById("_textSizeNode");
+	    } else {
+	      window.document.body.appendChild(_textSizeNode);
+	    }
+	  }
+	  rect = _textSizeNode.getBoundingClientRect();
+	  return frame = {
+	    width: rect.right - rect.left,
+	    height: rect.bottom - rect.top
+	  };
+	};
+	
+	_.extend(exports, Utils);
+
+
+/***/ },
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var BaseClass, ScreenClass,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
 	ScreenClass = (function(superClass) {
 	  extend(ScreenClass, superClass);
@@ -13876,7 +13704,7 @@
 
 
 /***/ },
-/* 7 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var CounterKey, DefinedPropertiesKey, DefinedPropertiesValuesKey, EventEmitter, Utils, _, capitalizeFirstLetter,
@@ -13884,11 +13712,11 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	EventEmitter = __webpack_require__(8).EventEmitter;
+	EventEmitter = __webpack_require__(7).EventEmitter;
 	
 	CounterKey = "_ObjectCounter";
 	
@@ -14084,18 +13912,18 @@
 
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var EventEmitter;
 	
-	EventEmitter = __webpack_require__(9).EventEmitter;
+	EventEmitter = __webpack_require__(8).EventEmitter;
 	
 	exports.EventEmitter = EventEmitter;
 
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -14330,126 +14158,7 @@
 
 
 /***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var FramerCSS, Utils;
-	
-	Utils = __webpack_require__(2);
-	
-	FramerCSS = "body {\n	margin: 0;\n}\n\n.framerContext {	\n	position: absolute;\n	left: 0;\n	top: 0;\n	right: 0;\n	bottom: 0;\n	pointer-events: none;\n	overflow: hidden;\n}\n\n.framerLayer {\n	display: block;\n	position: absolute;\n	left: 0;\n	top: 0;\n	background-repeat: no-repeat;\n	background-size: cover;\n	-webkit-overflow-scrolling: touch;\n	-webkit-box-sizing: border-box;\n	-webkit-user-select: none;\n}\n\n.framerLayer input,\n.framerLayer textarea,\n.framerLayer select,\n.framerLayer option,\n.framerLayer div[contenteditable=true]\n{\n	pointer-events: auto;\n	-webkit-user-select: auto;\n}\n\n.framerDebug {\n	padding: 6px;\n	color: #fff;\n	font: 10px/1em Monaco;\n}\n";
-	
-	Utils.domComplete(function() {
-	  return Utils.insertCSS(FramerCSS);
-	});
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var EventManagerElement, EventManagerIdCounter, Utils,
-	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-	
-	Utils = __webpack_require__(2);
-	
-	EventManagerIdCounter = 0;
-	
-	EventManagerElement = (function() {
-	  function EventManagerElement(element1) {
-	    this.element = element1;
-	    this._events = {};
-	  }
-	
-	  EventManagerElement.prototype.addEventListener = function(eventName, listener) {
-	    var base;
-	    if (!Utils.domValidEvent(this.element, eventName)) {
-	      return;
-	    }
-	    if ((base = this._events)[eventName] == null) {
-	      base[eventName] = [];
-	    }
-	    this._events[eventName].push(listener);
-	    return this.element.addEventListener(eventName, listener);
-	  };
-	
-	  EventManagerElement.prototype.removeEventListener = function(eventName, listener) {
-	    if (!this._events) {
-	      return;
-	    }
-	    if (!this._events[eventName]) {
-	      return;
-	    }
-	    this._events[eventName] = _.without(this._events[eventName], listener);
-	    this.element.removeEventListener(eventName, listener);
-	  };
-	
-	  EventManagerElement.prototype.removeAllEventListeners = function(eventName) {
-	    var eventListener, events, i, j, len, len1, ref;
-	    events = eventName ? [eventName] : _.keys(this._events);
-	    for (i = 0, len = events.length; i < len; i++) {
-	      eventName = events[i];
-	      ref = this._events[eventName];
-	      for (j = 0, len1 = ref.length; j < len1; j++) {
-	        eventListener = ref[j];
-	        this.removeEventListener(eventName, eventListener);
-	      }
-	    }
-	  };
-	
-	  EventManagerElement.prototype.once = function(event, listener) {
-	    var fn;
-	    fn = (function(_this) {
-	      return function() {
-	        _this.removeListener(event, fn);
-	        return listener.apply(null, arguments);
-	      };
-	    })(this);
-	    return this.on(event, fn);
-	  };
-	
-	  EventManagerElement.prototype.on = EventManagerElement.prototype.addEventListener;
-	
-	  EventManagerElement.prototype.off = EventManagerElement.prototype.removeEventListener;
-	
-	  return EventManagerElement;
-	
-	})();
-	
-	exports.EventManager = (function() {
-	  function EventManager(element) {
-	    this.wrap = bind(this.wrap, this);
-	    this._elements = {};
-	  }
-	
-	  EventManager.prototype.wrap = function(element) {
-	    if (!element._eventManagerId) {
-	      element._eventManagerId = EventManagerIdCounter++;
-	    }
-	    if (!this._elements[element._eventManagerId]) {
-	      this._elements[element._eventManagerId] = new EventManagerElement(element);
-	    }
-	    return this._elements[element._eventManagerId];
-	  };
-	
-	  EventManager.prototype.reset = function() {
-	    var element, elementEventManager, ref, results;
-	    ref = this._elements;
-	    results = [];
-	    for (element in ref) {
-	      elementEventManager = ref[element];
-	      results.push(elementEventManager.removeAllEventListeners());
-	    }
-	    return results;
-	  };
-	
-	  return EventManager;
-
-	})();
-
-
-/***/ },
-/* 12 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Animation, BaseClass, Config, Defaults, EventEmitter, LayerDraggable, LayerStates, LayerStyle, NoCacheDateKey, Utils, _, layerProperty, layerValueTypeError,
@@ -14459,25 +14168,25 @@
 	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
 	  slice = [].slice;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	Config = __webpack_require__(10).Config;
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
-	EventEmitter = __webpack_require__(8).EventEmitter;
+	EventEmitter = __webpack_require__(7).EventEmitter;
 	
-	Animation = __webpack_require__(14).Animation;
+	Animation = __webpack_require__(12).Animation;
 	
-	LayerStyle = __webpack_require__(21).LayerStyle;
+	LayerStyle = __webpack_require__(19).LayerStyle;
 	
-	LayerStates = __webpack_require__(22).LayerStates;
+	LayerStates = __webpack_require__(20).LayerStates;
 	
-	LayerDraggable = __webpack_require__(24).LayerDraggable;
+	LayerDraggable = __webpack_require__(22).LayerDraggable;
 	
 	NoCacheDateKey = Date.now();
 	
@@ -15132,7 +14841,7 @@
 	      if (this._alwaysUseImageCache === false && Utils.isLocalAssetUrl(imageUrl)) {
 	        imageUrl += "?nocache=" + NoCacheDateKey;
 	      }
-	      if ((ref = this.events) != null ? ref.hasOwnProperty("load" || ((ref1 = this.events) != null ? ref1.hasOwnProperty("error") : void 0)) : void 0) {
+	      if ((ref = this._eventListeners) != null ? ref.hasOwnProperty("load" || ((ref1 = this._eventListeners) != null ? ref1.hasOwnProperty("error") : void 0)) : void 0) {
 	        loader = new Image();
 	        loader.name = imageUrl;
 	        loader.src = imageUrl;
@@ -15230,6 +14939,12 @@
 	
 	  Layer.prototype.subLayersByName = function(name) {
 	    return _.filter(this.subLayers, function(layer) {
+	      return layer.name === name;
+	    });
+	  };
+	
+	  Layer.prototype.siblingLayersByName = function(name) {
+	    return _.filter(this.siblingLayers, function(layer) {
 	      return layer.name === name;
 	    });
 	  };
@@ -15595,14 +15310,29 @@
 
 
 /***/ },
-/* 13 */
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var FramerCSS, Utils;
+	
+	Utils = __webpack_require__(4);
+	
+	FramerCSS = "body {\n	margin: 0;\n}\n\n.framerContext {	\n	position: absolute;\n	left: 0;\n	top: 0;\n	right: 0;\n	bottom: 0;\n	pointer-events: none;\n	overflow: hidden;\n}\n\n.framerLayer {\n	display: block;\n	position: absolute;\n	left: 0;\n	top: 0;\n	background-repeat: no-repeat;\n	background-size: cover;\n	-webkit-overflow-scrolling: touch;\n	-webkit-box-sizing: border-box;\n	-webkit-user-select: none;\n}\n\n.framerLayer input,\n.framerLayer textarea,\n.framerLayer select,\n.framerLayer option,\n.framerLayer div[contenteditable=true]\n{\n	pointer-events: auto;\n	-webkit-user-select: auto;\n}\n\n.framerDebug {\n	padding: 6px;\n	color: #fff;\n	font: 10px/1em Monaco;\n}\n";
+	
+	Utils.domComplete(function() {
+	  return Utils.insertCSS(FramerCSS);
+	});
+
+
+/***/ },
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Originals, Utils, _;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	Originals = {
 	  Layer: {
@@ -15715,7 +15445,7 @@
 
 
 /***/ },
-/* 14 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var AnimatorClassBezierPresets, AnimatorClasses, BezierCurveAnimator, Config, Defaults, EventEmitter, LinearAnimator, SpringDHOAnimator, SpringRK4Animator, Utils, _, evaluateRelativeProperty, isRelativeProperty, numberRE, relativePropertyRE,
@@ -15725,23 +15455,23 @@
 	  hasProp = {}.hasOwnProperty,
 	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	Config = __webpack_require__(10).Config;
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
-	EventEmitter = __webpack_require__(8).EventEmitter;
+	EventEmitter = __webpack_require__(7).EventEmitter;
 	
-	LinearAnimator = __webpack_require__(15).LinearAnimator;
+	LinearAnimator = __webpack_require__(13).LinearAnimator;
 	
-	BezierCurveAnimator = __webpack_require__(17).BezierCurveAnimator;
+	BezierCurveAnimator = __webpack_require__(15).BezierCurveAnimator;
 	
-	SpringRK4Animator = __webpack_require__(18).SpringRK4Animator;
+	SpringRK4Animator = __webpack_require__(16).SpringRK4Animator;
 	
-	SpringDHOAnimator = __webpack_require__(20).SpringDHOAnimator;
+	SpringDHOAnimator = __webpack_require__(18).SpringDHOAnimator;
 	
 	AnimatorClasses = {
 	  "linear": LinearAnimator,
@@ -16035,16 +15765,16 @@
 
 
 /***/ },
-/* 15 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Animator, Utils,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Animator = __webpack_require__(16).Animator;
+	Animator = __webpack_require__(14).Animator;
 	
 	exports.LinearAnimator = (function(superClass) {
 	  extend(LinearAnimator, superClass);
@@ -16079,12 +15809,12 @@
 
 
 /***/ },
-/* 16 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Config, Utils;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	Config = __webpack_require__(10).Config;
 	
@@ -16115,18 +15845,18 @@
 
 
 /***/ },
-/* 17 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Animator, BezierCurveDefaults, UnitBezier, Utils, _,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Animator = __webpack_require__(16).Animator;
+	Animator = __webpack_require__(14).Animator;
 	
 	BezierCurveDefaults = {
 	  "linear": [0, 0, 1, 1],
@@ -16258,7 +15988,7 @@
 
 
 /***/ },
-/* 18 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Animator, Integrator, Utils,
@@ -16266,11 +15996,11 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Animator = __webpack_require__(16).Animator;
+	Animator = __webpack_require__(14).Animator;
 	
-	Integrator = __webpack_require__(19).Integrator;
+	Integrator = __webpack_require__(17).Integrator;
 	
 	exports.SpringRK4Animator = (function(superClass) {
 	  extend(SpringRK4Animator, superClass);
@@ -16331,12 +16061,12 @@
 
 
 /***/ },
-/* 19 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Config, Utils;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	Config = __webpack_require__(10).Config;
 	
@@ -16390,7 +16120,7 @@
 
 
 /***/ },
-/* 20 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Animator, Utils,
@@ -16398,9 +16128,9 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Animator = __webpack_require__(16).Animator;
+	Animator = __webpack_require__(14).Animator;
 	
 	exports.SpringDHOAnimator = (function(superClass) {
 	  extend(SpringDHOAnimator, superClass);
@@ -16450,7 +16180,7 @@
 
 
 /***/ },
-/* 21 */
+/* 19 */
 /***/ function(module, exports) {
 
 	var _Force2DProperties, _WebkitProperties, filterFormat;
@@ -16588,7 +16318,7 @@
 
 
 /***/ },
-/* 22 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var BaseClass, Defaults, Events, LayerStatesIgnoredKeys, _,
@@ -16597,13 +16327,13 @@
 	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
 	  slice = [].slice;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
 	LayerStatesIgnoredKeys = ["ignoreEvents"];
 	
@@ -16744,9 +16474,6 @@
 	    ref = this._states;
 	    for (stateName in ref) {
 	      state = ref[stateName];
-	      if (stateName === "default") {
-	        continue;
-	      }
 	      keys = _.union(keys, _.keys(state));
 	    }
 	    return keys;
@@ -16797,14 +16524,14 @@
 
 
 /***/ },
-/* 23 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Events, Utils, _;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	Events = {};
 	
@@ -16866,7 +16593,7 @@
 
 
 /***/ },
-/* 24 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var BaseClass, Defaults, EventBuffer, Events, Simulation, Utils, _,
@@ -16874,19 +16601,19 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
-	Simulation = __webpack_require__(25).Simulation;
+	Simulation = __webpack_require__(23).Simulation;
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
-	EventBuffer = __webpack_require__(30).EventBuffer;
+	EventBuffer = __webpack_require__(28).EventBuffer;
 	
 	Events.Move = "move";
 	
@@ -17506,7 +17233,7 @@
 
 
 /***/ },
-/* 25 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var BaseClass, Config, Defaults, Events, FrictionSimulator, MomentumBounceSimulator, SimulatorClasses, SpringSimulator, Utils, _,
@@ -17515,23 +17242,23 @@
 	  hasProp = {}.hasOwnProperty,
 	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	Config = __webpack_require__(10).Config;
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
-	SpringSimulator = __webpack_require__(26).SpringSimulator;
+	SpringSimulator = __webpack_require__(24).SpringSimulator;
 	
-	FrictionSimulator = __webpack_require__(28).FrictionSimulator;
+	FrictionSimulator = __webpack_require__(26).FrictionSimulator;
 	
-	MomentumBounceSimulator = __webpack_require__(29).MomentumBounceSimulator;
+	MomentumBounceSimulator = __webpack_require__(27).MomentumBounceSimulator;
 	
 	Events.SimulationStart = 'simulationStart';
 	
@@ -17656,7 +17383,7 @@
 
 
 /***/ },
-/* 26 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Defaults, Integrator, Simulator, Utils,
@@ -17664,13 +17391,13 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
-	Simulator = __webpack_require__(27).Simulator;
+	Simulator = __webpack_require__(25).Simulator;
 	
-	Integrator = __webpack_require__(19).Integrator;
+	Integrator = __webpack_require__(17).Integrator;
 	
 	exports.SpringSimulator = (function(superClass) {
 	  extend(SpringSimulator, superClass);
@@ -17731,20 +17458,20 @@
 
 
 /***/ },
-/* 27 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var BaseClass, Config, Utils, _,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
 	Config = __webpack_require__(10).Config;
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
 	exports.Simulator = (function(superClass) {
 	  "The simulator class runs a physics simulation based on a set of input values \nat setup({input values}), and emits an output state {x, v}";
@@ -17789,7 +17516,7 @@
 
 
 /***/ },
-/* 28 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Defaults, Integrator, Simulator, Utils,
@@ -17797,13 +17524,13 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
-	Simulator = __webpack_require__(27).Simulator;
+	Simulator = __webpack_require__(25).Simulator;
 	
-	Integrator = __webpack_require__(19).Integrator;
+	Integrator = __webpack_require__(17).Integrator;
 	
 	exports.FrictionSimulator = (function(superClass) {
 	  extend(FrictionSimulator, superClass);
@@ -17845,7 +17572,7 @@
 
 
 /***/ },
-/* 29 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Defaults, FrictionSimulator, Simulator, SpringSimulator, Utils,
@@ -17853,15 +17580,15 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
-	Simulator = __webpack_require__(27).Simulator;
+	Simulator = __webpack_require__(25).Simulator;
 	
-	SpringSimulator = __webpack_require__(26).SpringSimulator;
+	SpringSimulator = __webpack_require__(24).SpringSimulator;
 	
-	FrictionSimulator = __webpack_require__(28).FrictionSimulator;
+	FrictionSimulator = __webpack_require__(26).FrictionSimulator;
 	
 	exports.MomentumBounceSimulator = (function(superClass) {
 	  extend(MomentumBounceSimulator, superClass);
@@ -17985,20 +17712,20 @@
 
 
 /***/ },
-/* 30 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var BaseClass, Events, Utils, _,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
 	Events.EventBufferReset = "eventbufferreset";
 	
@@ -18115,7 +17842,7 @@
 
 
 /***/ },
-/* 31 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Layer,
@@ -18123,7 +17850,7 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Layer = __webpack_require__(12).Layer;
+	Layer = __webpack_require__(9).Layer;
 	
 	"Todo: make it work in a parent layer";
 	
@@ -18175,14 +17902,14 @@
 
 
 /***/ },
-/* 32 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Layer,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Layer = __webpack_require__(12).Layer;
+	Layer = __webpack_require__(9).Layer;
 	
 	exports.VideoLayer = (function(superClass) {
 	  extend(VideoLayer, superClass);
@@ -18217,16 +17944,16 @@
 
 
 /***/ },
-/* 33 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var AnimationGroup, EventEmitter, _,
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	EventEmitter = __webpack_require__(8).EventEmitter;
+	EventEmitter = __webpack_require__(7).EventEmitter;
 	
 	AnimationGroup = (function(superClass) {
 	  extend(AnimationGroup, superClass);
@@ -18278,7 +18005,7 @@
 
 
 /***/ },
-/* 34 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var BaseClass, CanvasClass, Events,
@@ -18286,9 +18013,9 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
 	CanvasClass = (function(superClass) {
 	  extend(CanvasClass, superClass);
@@ -18351,15 +18078,15 @@
 
 
 /***/ },
-/* 35 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Context, Utils, printContext, printLayer,
 	  slice = [].slice;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Context = __webpack_require__(1).Context;
+	Context = __webpack_require__(34).Context;
 	
 	"\nTodo:\n- Better looks\n- Resizable\n- Live in own space on top of all Framer stuff\n";
 	
@@ -18415,6 +18142,282 @@
 
 
 /***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var BaseClass, Config, Counter, EventManager, Utils, _,
+	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+	  hasProp = {}.hasOwnProperty,
+	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+	
+	Utils = __webpack_require__(4);
+	
+	_ = __webpack_require__(1)._;
+	
+	BaseClass = __webpack_require__(6).BaseClass;
+	
+	Config = __webpack_require__(10).Config;
+	
+	EventManager = __webpack_require__(35).EventManager;
+	
+	Counter = 1;
+	
+	exports.Context = (function(superClass) {
+	  extend(Context, superClass);
+	
+	  function Context(options) {
+	    if (options == null) {
+	      options = {};
+	    }
+	    this._appendRootElement = bind(this._appendRootElement, this);
+	    Context.__super__.constructor.apply(this, arguments);
+	    Counter++;
+	    options = _.defaults(options, {
+	      contextName: null,
+	      parentLayer: null,
+	      name: null
+	    });
+	    if (!options.name) {
+	      throw Error("Contexts need a name");
+	    }
+	    this._parentLayer = options.parentLayer;
+	    this._name = options.name;
+	    this.reset();
+	  }
+	
+	  Context.prototype.reset = function() {
+	    var animation, i, len, ref, ref1, ref2, ref3;
+	    if ((ref = this.eventManager) != null) {
+	      ref.reset();
+	    }
+	    this.eventManager = new EventManager;
+	    if (this._rootElement) {
+	      if (this._rootElement.parentNode) {
+	        this._rootElement.parentNode.removeChild(this._rootElement);
+	      } else {
+	        this._rootElement.__cancelAppendChild = true;
+	      }
+	    }
+	    this._createRootElement();
+	    if ((ref1 = this._delayTimers) != null) {
+	      ref1.map(function(timer) {
+	        return window.clearTimeout(timer);
+	      });
+	    }
+	    if ((ref2 = this._delayIntervals) != null) {
+	      ref2.map(function(timer) {
+	        return window.clearInterval(timer);
+	      });
+	    }
+	    if (this._animationList) {
+	      ref3 = this._animationList;
+	      for (i = 0, len = ref3.length; i < len; i++) {
+	        animation = ref3[i];
+	        animation.stop(false);
+	      }
+	    }
+	    this._layerList = [];
+	    this._animationList = [];
+	    this._delayTimers = [];
+	    this._delayIntervals = [];
+	    this._layerIdCounter = 1;
+	    return this.emit("reset", this);
+	  };
+	
+	  Context.prototype.destroy = function() {
+	    this.reset();
+	    if (this._rootElement.parentNode) {
+	      this._rootElement.parentNode.removeChild(this._rootElement);
+	    }
+	    return Utils.domCompleteCancel(this._appendRootElement);
+	  };
+	
+	  Context.prototype.getRootElement = function() {
+	    return this._rootElement;
+	  };
+	
+	  Context.prototype.getLayers = function() {
+	    return _.clone(this._layerList);
+	  };
+	
+	  Context.prototype.addLayer = function(layer) {
+	    if (indexOf.call(this._layerList, layer) >= 0) {
+	      return;
+	    }
+	    this._layerList.push(layer);
+	    return null;
+	  };
+	
+	  Context.prototype.removeLayer = function(layer) {
+	    this._layerList = _.without(this._layerList, layer);
+	    return null;
+	  };
+	
+	  Context.prototype.layerCount = function() {
+	    return this._layerList.length;
+	  };
+	
+	  Context.prototype.nextLayerId = function() {
+	    return this._layerIdCounter++;
+	  };
+	
+	  Context.prototype._createRootElement = function() {
+	    this._rootElement = document.createElement("div");
+	    this._rootElement.id = "FramerContextRoot-" + this._name;
+	    this._rootElement.classList.add("framerContext");
+	    if (this._parentLayer) {
+	      return this._appendRootElement();
+	    } else {
+	      return Utils.domComplete(this._appendRootElement);
+	    }
+	  };
+	
+	  Context.prototype._appendRootElement = function() {
+	    var parentElement, ref;
+	    parentElement = (ref = this._parentLayer) != null ? ref._element : void 0;
+	    if (parentElement == null) {
+	      parentElement = document.body;
+	    }
+	    return parentElement.appendChild(this._rootElement);
+	  };
+	
+	  Context.prototype.run = function(f) {
+	    var previousContext;
+	    previousContext = Framer.CurrentContext;
+	    Framer.CurrentContext = this;
+	    f();
+	    return Framer.CurrentContext = previousContext;
+	  };
+	
+	  Context.define("width", {
+	    get: function() {
+	      if (this._parentLayer) {
+	        return this._parentLayer.width;
+	      }
+	      return window.innerWidth;
+	    }
+	  });
+	
+	  Context.define("height", {
+	    get: function() {
+	      if (this._parentLayer) {
+	        return this._parentLayer.height;
+	      }
+	      return window.innerHeight;
+	    }
+	  });
+	
+	  return Context;
+	
+	})(BaseClass);
+
+
+/***/ },
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var EventManagerElement, EventManagerIdCounter, Utils,
+	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	
+	Utils = __webpack_require__(4);
+	
+	EventManagerIdCounter = 0;
+	
+	EventManagerElement = (function() {
+	  function EventManagerElement(element1) {
+	    this.element = element1;
+	    this._events = {};
+	  }
+	
+	  EventManagerElement.prototype.addEventListener = function(eventName, listener) {
+	    var base;
+	    if (!Utils.domValidEvent(this.element, eventName)) {
+	      return;
+	    }
+	    if ((base = this._events)[eventName] == null) {
+	      base[eventName] = [];
+	    }
+	    this._events[eventName].push(listener);
+	    return this.element.addEventListener(eventName, listener);
+	  };
+	
+	  EventManagerElement.prototype.removeEventListener = function(eventName, listener) {
+	    if (!this._events) {
+	      return;
+	    }
+	    if (!this._events[eventName]) {
+	      return;
+	    }
+	    this._events[eventName] = _.without(this._events[eventName], listener);
+	    this.element.removeEventListener(eventName, listener);
+	  };
+	
+	  EventManagerElement.prototype.removeAllEventListeners = function(eventName) {
+	    var eventListener, events, i, j, len, len1, ref;
+	    events = eventName ? [eventName] : _.keys(this._events);
+	    for (i = 0, len = events.length; i < len; i++) {
+	      eventName = events[i];
+	      ref = this._events[eventName];
+	      for (j = 0, len1 = ref.length; j < len1; j++) {
+	        eventListener = ref[j];
+	        this.removeEventListener(eventName, eventListener);
+	      }
+	    }
+	  };
+	
+	  EventManagerElement.prototype.once = function(event, listener) {
+	    var fn;
+	    fn = (function(_this) {
+	      return function() {
+	        _this.removeListener(event, fn);
+	        return listener.apply(null, arguments);
+	      };
+	    })(this);
+	    return this.on(event, fn);
+	  };
+	
+	  EventManagerElement.prototype.on = EventManagerElement.prototype.addEventListener;
+	
+	  EventManagerElement.prototype.off = EventManagerElement.prototype.removeEventListener;
+	
+	  return EventManagerElement;
+	
+	})();
+	
+	exports.EventManager = (function() {
+	  function EventManager(element) {
+	    this.wrap = bind(this.wrap, this);
+	    this._elements = {};
+	  }
+	
+	  EventManager.prototype.wrap = function(element) {
+	    if (!element._eventManagerId) {
+	      element._eventManagerId = EventManagerIdCounter++;
+	    }
+	    if (!this._elements[element._eventManagerId]) {
+	      this._elements[element._eventManagerId] = new EventManagerElement(element);
+	    }
+	    return this._elements[element._eventManagerId];
+	  };
+	
+	  EventManager.prototype.reset = function() {
+	    var element, elementEventManager, ref, results;
+	    ref = this._elements;
+	    results = [];
+	    for (element in ref) {
+	      elementEventManager = ref[element];
+	      results.push(elementEventManager.removeAllEventListeners());
+	    }
+	    return results;
+	  };
+	
+	  return EventManager;
+
+	})();
+
+
+/***/ },
 /* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -18425,13 +18428,13 @@
 	  slice = [].slice,
 	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Layer = __webpack_require__(12).Layer;
+	Layer = __webpack_require__(9).Layer;
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
 	"ScrollComponent\n\ncontent <Layer>\ncontentSize <{width:n, height:n}>\ncontentInset <{top:n, right:n, bottom:n, left:n}> TODO\ncontentOffset <{x:n, y:n}> TODO\nscrollFrame <{x:n, y:n, width:n, height:n}>\nscrollPoint <{x:n, y:n}>\nscrollHorizontal <bool>\nscrollVertical <bool>\nspeedX <number>\nspeedY <number>\ndelaysContentTouches <bool> TODO\nloadPreset(<\"ios\"|\"android\">) TODO\nscrollToPoint(<{x:n, y:n}>, animate=true, animationOptions={})\nscrollToLayer(contentLayer, originX=0, originY=0)\nscrollFrameForContentLayer(<x:n, y:n>) <{x:n, y:n, width:n, height:n}> TODO\nclosestContentLayer(<x:n, y:n>) <Layer> TODO\n\nScrollComponent Events\n\n(all of the draggable events)\nScrollStart -> DragStart\nScrollWillMove -> DragWillMove\nScrollDidMove -> DragDidMove\nscroll -> DragMove (html compat)\nScrollEnd -> DragEnd";
 	
@@ -19033,7 +19036,7 @@
 	  hasProp = {}.hasOwnProperty,
 	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
 	ScrollComponent = __webpack_require__(36).ScrollComponent;
 	
@@ -19188,10 +19191,7 @@
 	      direction = "right";
 	      throw new Error(direction + " should be in " + directions);
 	    }
-	    point = {
-	      x: 0,
-	      y: 0
-	    };
+	    point = page.point;
 	    if (this.content.subLayers.length) {
 	      if (direction === "right" || direction === "east") {
 	        point.x = Utils.frameGetMaxX(this.content.contentFrame());
@@ -19312,11 +19312,11 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Layer = __webpack_require__(12).Layer;
+	Layer = __webpack_require__(9).Layer;
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
 	"SliderComponent\n\nknob <layer>\nknobSize <width, height>\nfill <layer>\nmin <number>\nmax <number>\n\npointForValue(<n>)\nvalueForPoint(<n>)\n\nanimateToValue(value, animationOptions={})";
 	
@@ -19561,19 +19561,19 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
 	DeviceComponentDefaultDevice = "iphone-6-silver";
 	
-	BaseClass = __webpack_require__(7).BaseClass;
+	BaseClass = __webpack_require__(6).BaseClass;
 	
-	Layer = __webpack_require__(12).Layer;
+	Layer = __webpack_require__(9).Layer;
 	
-	Defaults = __webpack_require__(13).Defaults;
+	Defaults = __webpack_require__(11).Defaults;
 	
-	Events = __webpack_require__(23).Events;
+	Events = __webpack_require__(21).Events;
 	
 	
 	/*
@@ -20446,13 +20446,13 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	Config = __webpack_require__(10).Config;
 	
-	EventEmitter = __webpack_require__(8).EventEmitter;
+	EventEmitter = __webpack_require__(7).EventEmitter;
 	
 	getTime = function() {
 	  return Utils.getTime() * 1000;
@@ -20515,9 +20515,9 @@
 	var ChromeAlert, Utils, _,
 	  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 	
-	_ = __webpack_require__(3)._;
+	_ = __webpack_require__(1)._;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	ChromeAlert = "Importing layers is currently only supported on Safari. If you really want it to work with Chrome quit it, open a terminal and run:\nopen -a Google\ Chrome -–allow-file-access-from-files";
 	
@@ -20657,9 +20657,9 @@
 
 	var Context, Utils, _errorContext, _errorShown, errorWarning;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
-	Context = __webpack_require__(1).Context;
+	Context = __webpack_require__(34).Context;
 	
 	_errorContext = null;
 	
@@ -20734,7 +20734,7 @@
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
-	Utils = __webpack_require__(2);
+	Utils = __webpack_require__(4);
 	
 	exports.enable = function() {
 	  var MobileScrollFixLayer, handleScrollingLayerTouchMove, handleScrollingLayerTouchStart;
