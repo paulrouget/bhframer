@@ -33,7 +33,7 @@ var qz = {
 
 var vimeo = {
   domain: "vimeo.com",
-  title: "Staff Picks - Blood Pulls A …",
+  title: "Staff Picks - Blood Pu…",
   w: 2348,
   h: 4006,
   screenshot: "pages/p3.png",

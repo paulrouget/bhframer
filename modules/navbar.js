@@ -107,11 +107,11 @@ exports.PreviewNavbar = function(page, width, height) {
     height: height,
     width: width,
     style: {
-      "font-size": 0.5 * height + "px",
+      "font-size": 0.7 * height + "px",
       "line-height": height + "px",
       "color": fg,
       "text-align": "center",
-      "font-weight": "lighter",
+      // "font-weight": "lighter",
     },
     html: page.domain + ": " + page.title
   });
